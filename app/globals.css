@@ -33,6 +33,13 @@ body {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    --primary-blue: 193 98% 39%;
+    --primary-teal: 186 95% 18%;
+    --gray-50: 0 0% 98%;
+    --gray-500: 240 4% 46%;
+    --gray-900: 240 4% 10%;
+    --gray-600: 217 19% 35%;
+    --blue-950: 222 95% 5%;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -59,6 +66,13 @@ body {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --primary-blue: 193 98% 49%;
+    --primary-teal: 186 95% 28%;
+    --gray-50: 0 0% 15%;
+    --gray-500: 240 4% 56%;
+    --gray-900: 240 4% 95%;
+    --gray-600: 217 19% 45%;
+    --blue-950: 222 95% 95%;
   }
 }
 
@@ -70,8 +84,6 @@ body {
     @apply bg-background text-foreground;
   }
 }
-
-
 
 @layer base {
   * {

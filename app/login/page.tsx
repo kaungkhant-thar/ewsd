@@ -37,8 +37,8 @@ export default function LoginPage() {
       <form onSubmit={handleSubmit} className="flex items-center justify-center p-8">
         <div className="mx-auto w-full max-w-md space-y-6">
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight text-[#020617]">Sign in to your account</h1>
-            <p className="text-[#475569]">Enter your credentials to access student discussions, events, and more.</p>
+            <h1 className="text-3xl font-bold tracking-tight text-blue-950">Sign in to your account</h1>
+            <p className="text-gray-600">Enter your credentials to access student discussions, events, and more.</p>
           </div>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -55,7 +55,7 @@ export default function LoginPage() {
                 className="w-full"
               />
             </div>
-            <Button className="w-full bg-[#0284c7] hover:bg-[#0284c7]/90">Sign In</Button>
+            <Button className="w-full bg-primary-teal hover:bg-primary-teal/90">Sign In</Button>
           </div>
         </div>
       </form>
