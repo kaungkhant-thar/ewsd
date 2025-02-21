@@ -5,8 +5,20 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import loginImage from './login.jpg';
+import { redirect } from 'next/navigation';
 
 export default function LoginPage() {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+    // Handle form submission
+    console.log('Form submitted:', email, password);
+
+    redirect('/role-management');
+  };
+
   return (
     <div className="grid min-h-screen lg:grid-cols-2 lg:p-6">
       {/* Image container - shown differently on mobile vs desktop */}
@@ -22,7 +34,7 @@ export default function LoginPage() {
       </div>
 
       {/* Form container */}
-      <div className="flex items-center justify-center p-8">
+      <form onSubmit={handleSubmit} className="flex items-center justify-center p-8">
         <div className="mx-auto w-full max-w-md space-y-6">
           <div className="space-y-2">
             <h1 className="text-3xl font-bold tracking-tight text-[#020617]">Sign in to your account</h1>
@@ -31,16 +43,22 @@ export default function LoginPage() {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" placeholder="john@example.com" type="email" className="w-full" />
+              <Input id="email" name="email" placeholder="john@example.com" type="email" className="w-full" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" placeholder="Enter your password" type="password" className="w-full" />
+              <Input
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                type="password"
+                className="w-full"
+              />
             </div>
             <Button className="w-full bg-[#0284c7] hover:bg-[#0284c7]/90">Sign In</Button>
           </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
