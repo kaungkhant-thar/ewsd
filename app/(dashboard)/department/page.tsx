@@ -17,7 +17,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import _ from "lodash";
-import { Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { Pencil, Plus, Search, Trash2, TriangleAlert } from "lucide-react";
 import { useState } from "react";
 
 const records = [
@@ -37,6 +37,14 @@ const columns = Object.keys(records[0]);
 
 export default function DepartmentPage() {
 	const [sortBy, setSortBy] = useState(columns[0]);
+	const [keyword, setKeyword] = useState("");
+
+	const filteredRecords = records.filter((record) =>
+		Object.values(record).some((value) =>
+			String(value).toLowerCase().includes(keyword.toLowerCase()),
+		),
+	);
+
 	return (
 		<div>
 			<div className="flex items-center justify-between py-4">
@@ -50,8 +58,10 @@ export default function DepartmentPage() {
 				<div className="relative w-96">
 					<Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#71717a]" />
 					<Input
+						value={keyword}
 						className="pl-9 border-[#e4e4e7]"
 						placeholder="Type to search"
+						onChange={(e) => setKeyword(e.target.value)}
 					/>
 				</div>
 				<Select onValueChange={setSortBy}>
@@ -67,39 +77,53 @@ export default function DepartmentPage() {
 					</SelectContent>
 				</Select>
 			</div>
-			<Table>
-				<TableHeader>
-					<TableRow>
-						<TableHead className="w-[100px]">ID</TableHead>
-						<TableHead>Department</TableHead>
-						<TableHead>Remark</TableHead>
-						<TableHead className="text-right">Action</TableHead>
-					</TableRow>
-				</TableHeader>
-				<TableBody>
-					{records
-						.sort((a, b) =>
-							(a[sortBy as never] as string).localeCompare(b[sortBy as never]),
-						)
-						.map(({ id, department, remark }, i) => (
-							<TableRow key={id}>
-								<TableCell>{id}</TableCell>
-								<TableCell>{department}</TableCell>
-								<TableCell>{remark}</TableCell>
-								<TableCell className="text-right">
-									<div className="flex justify-end gap-2">
-										<Button variant="ghost" size="icon" className="size-8">
-											<Pencil className="h-4 w-4 text-[#71717a]" />
-										</Button>
-										<Button variant="ghost" size="icon" className="size-8">
-											<Trash2 className="h-4 w-4 text-[#df1212]" />
-										</Button>
-									</div>
-								</TableCell>
-							</TableRow>
-						))}
-				</TableBody>
-			</Table>
+			{filteredRecords.length > 0 ? (
+				<Table>
+					<TableHeader>
+						<TableRow>
+							<TableHead className="w-[100px]">ID</TableHead>
+							<TableHead>Department</TableHead>
+							<TableHead>Remark</TableHead>
+							<TableHead className="text-right">Action</TableHead>
+						</TableRow>
+					</TableHeader>
+					<TableBody>
+						{filteredRecords
+							.sort((a, b) =>
+								(a[sortBy as never] as string).localeCompare(
+									b[sortBy as never],
+								),
+							)
+							.map(({ id, department, remark }, i) => (
+								<TableRow key={id}>
+									<TableCell>{id}</TableCell>
+									<TableCell>{department}</TableCell>
+									<TableCell>{remark}</TableCell>
+									<TableCell className="text-right">
+										<div className="flex justify-end gap-2">
+											<Button variant="ghost" size="icon" className="size-8">
+												<Pencil className="h-4 w-4 text-[#71717a]" />
+											</Button>
+											<Button variant="ghost" size="icon" className="size-8">
+												<Trash2 className="h-4 w-4 text-[#df1212]" />
+											</Button>
+										</div>
+									</TableCell>
+								</TableRow>
+							))}
+					</TableBody>
+				</Table>
+			) : (
+				<div>
+					<h2 className="flex text-base font-medium space-x-2 items-center">
+						<TriangleAlert className="text-[#DC2626]" />
+						<span>No exact matches found</span>
+					</h2>
+					<p className="text-sm mt-2">
+						Keep trying! Double-check the spelling or try a broader search.
+					</p>
+				</div>
+			)}
 		</div>
 	);
 }
