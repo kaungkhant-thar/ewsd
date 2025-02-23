@@ -1,3 +1,4 @@
+"use client";
 import Logo from "@/components/ui/logo";
 import {
 	Sidebar,
@@ -12,14 +13,15 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import {
-	BarChart2,
-	Building2,
+	Building,
 	Calendar,
-	FileText,
-	UserCircle,
+	ClipboardList,
+	LayoutGrid,
+	User,
 	Users,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { NavUser } from "./nav-user";
 
 const linkSections = [
@@ -27,33 +29,47 @@ const linkSections = [
 		title: "Overview",
 		links: [
 			{
-				icon: <BarChart2 className="size-4" />,
+				icon: <LayoutGrid className="size-4" />,
 				text: "System Report",
-				href: "",
+				href: "/system-report",
 			},
 		],
 	},
 	{
 		title: "Features",
 		links: [
-			{ icon: <FileText className="size-4" />, text: "Ideas", href: "" },
-			{ icon: <Users className="size-4" />, text: "Staff", href: "" },
 			{
-				icon: <UserCircle className="size-4" />,
+				icon: <ClipboardList className="size-4" />,
+				text: "Ideas",
+				href: "/ideas",
+			},
+			{
+				icon: <User className="size-4" />,
+				text: "Staff",
+				href: "/staff",
+			},
+			{
+				icon: <Users className="size-4" />,
 				text: "Staff Role",
-				href: "",
+				href: "/staff-role",
 			},
 			{
 				icon: <Calendar className="size-4" />,
 				text: "Academic Year",
-				href: "",
+				href: "/academic-year",
 			},
-			{ icon: <Building2 className="size-4" />, text: "Department", href: "" },
+			{
+				icon: <Building className="size-4" />,
+				text: "Department",
+				href: "/department",
+			},
 		],
 	},
 ];
 
 export function AppSidebar() {
+	const pathname = usePathname();
+
 	return (
 		<Sidebar className="py-2">
 			<SidebarHeader>
@@ -74,8 +90,11 @@ export function AppSidebar() {
 						<SidebarGroupContent>
 							<SidebarMenu className="px-2">
 								{links.map(({ icon, text, href }) => (
-									<SidebarMenuItem key={title}>
-										<SidebarMenuButton asChild>
+									<SidebarMenuItem key={text}>
+										<SidebarMenuButton
+											asChild
+											isActive={pathname.includes(href)}
+										>
 											<Link href={href}>
 												{icon}
 												<span>{text}</span>
