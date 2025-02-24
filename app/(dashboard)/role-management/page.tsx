@@ -1,17 +1,35 @@
-'use client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Search, Pencil, Trash2 } from 'lucide-react';
-import { redirect } from 'next/navigation';
+"use client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Plus, Search, Pencil, Trash2 } from "lucide-react";
+import { redirect } from "next/navigation";
 
 export default function StaffManagementPage() {
   return (
     <div className="p-8">
       <div className="flex justify-between items-center mb-8">
-        <h2 className="text-2xl font-semibold text-[#18181b]">Manage Staff Role</h2>
-        <Button onClick={() => redirect('/role-management/new')} className="bg-[#025964] hover:bg-[#025964]/90">
+        <h2 className="text-2xl font-semibold text-[#18181b]">
+          Manage Staff Role
+        </h2>
+        <Button
+          onClick={() => redirect("/role-management/new")}
+          className="bg-[#025964] hover:bg-[#025964]/90"
+        >
           <Plus className="h-5 w-5 mr-2" />
           Add staff
         </Button>
@@ -21,7 +39,10 @@ export default function StaffManagementPage() {
         <div className="p-4 flex justify-between items-center border-b border-[#e4e4e7]">
           <div className="relative w-[300px]">
             <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#71717a]" />
-            <Input placeholder="Type a command or search..." className="pl-9 border-[#e4e4e7]" />
+            <Input
+              placeholder="Type a command or search..."
+              className="pl-9 border-[#e4e4e7]"
+            />
           </div>
           <Select>
             <SelectTrigger className="w-[120px]">
