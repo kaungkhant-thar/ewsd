@@ -17,77 +17,89 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import _ from "lodash";
-import { Pencil, Plus, Search, Trash2, TriangleAlert } from "lucide-react";
+import {
+  Loader2,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
+  TriangleAlert,
+} from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import type { Staff } from "./api";
+import { staffApi } from "./api";
 
-const records = [
-  {
-    id: "1",
-    username: "Thet Aung Tun",
-    email: "testing@gmail.com",
-    number: "09123456",
-    role: "QA manager",
-    department: "QA Department",
-    remark: "Lorem ipsum",
-  },
-  {
-    id: "2",
-    username: "Thet Aung Tun",
-    email: "testing@gmail.com",
-    number: "09123456",
-    role: "QA manager",
-    department: "QA Department",
-    remark: "Lorem ipsum",
-  },
-  {
-    id: "3",
-    username: "Thet Aung Tun",
-    email: "testing@gmail.com",
-    number: "09123456",
-    role: "QA manager",
-    department: "QA Department",
-    remark: "Lorem ipsum",
-  },
-  {
-    id: "4",
-    username: "Thet Aung Tun",
-    email: "testing@gmail.com",
-    number: "09123456",
-    role: "QA manager",
-    department: "QA Department",
-    remark: "Lorem ipsum",
-  },
-  {
-    id: "5",
-    username: "Thet Aung Tun",
-    email: "testing@gmail.com",
-    number: "09123456",
-    role: "QA manager",
-    department: "QA Department",
-    remark: "Lorem ipsum",
-  },
-];
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const columns = [
   "id",
-  "username",
+  "userName",
   "email",
-  "number",
-  "role",
-  "department",
+  "phoneNo",
+  "roleId",
+  "departmentId",
   "remark",
 ];
 
-export default function DepartmentPage() {
+export default function StaffPage() {
   const [sortBy, setSortBy] = useState(columns[0]);
   const [keyword, setKeyword] = useState("");
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const queryClient = useQueryClient();
 
-  const filteredRecords = records.filter((record) =>
-    Object.values(record).some((value) =>
+  const {
+    data: staffs = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["staffs"],
+    queryFn: staffApi.fetchStaffs,
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: staffApi.deleteStaff,
+    onSuccess: () => {
+      toast.success("Staff member deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["staffs"] });
+      setDeleteId(null);
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to delete staff member");
+    },
+  });
+
+  const filteredRecords = staffs.filter((staff) =>
+    Object.values(staff).some((value) =>
       String(value).toLowerCase().includes(keyword.toLowerCase())
     )
   );
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-[50vh] text-red-600">
+        <TriangleAlert className="mr-2" />
+        <span>{(error as Error).message || "An error occurred"}</span>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -95,7 +107,7 @@ export default function DepartmentPage() {
         <h1 className="text-2xl font-medium">Manage Staff</h1>
         <Button asChild>
           <Link href="/staff/add">
-            <Plus />
+            <Plus className="mr-2" />
             <span>Add Staff</span>
           </Link>
         </Button>
@@ -110,7 +122,7 @@ export default function DepartmentPage() {
             onChange={(e) => setKeyword(e.target.value)}
           />
         </div>
-        <Select onValueChange={setSortBy}>
+        <Select value={sortBy} onValueChange={setSortBy}>
           <SelectTrigger className="w-28">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
@@ -130,9 +142,9 @@ export default function DepartmentPage() {
               <TableHead className="w-[100px]">ID</TableHead>
               <TableHead>Username</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Number</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Department</TableHead>
+              <TableHead>Phone No</TableHead>
+              <TableHead>Role ID</TableHead>
+              <TableHead>Department ID</TableHead>
               <TableHead>Remark</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
@@ -140,38 +152,43 @@ export default function DepartmentPage() {
           <TableBody>
             {filteredRecords
               .sort((a, b) =>
-                (a[sortBy as never] as string).localeCompare(b[sortBy as never])
-              )
-              .map(
-                ({ id, username, email, number, role, department, remark }) => (
-                  <TableRow key={id}>
-                    <TableCell>{id}</TableCell>
-                    <TableCell>{username}</TableCell>
-                    <TableCell>{email}</TableCell>
-                    <TableCell>{number}</TableCell>
-                    <TableCell>{role}</TableCell>
-                    <TableCell>{department}</TableCell>
-                    <TableCell>{remark}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          asChild
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                        >
-                          <Link href={`/staff/${1}`}>
-                            <Pencil className="h-4 w-4 text-[#71717a]" />
-                          </Link>
-                        </Button>
-                        <Button variant="ghost" size="icon" className="size-8">
-                          <Trash2 className="h-4 w-4 text-[#df1212]" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                String(a[sortBy as keyof Staff]).localeCompare(
+                  String(b[sortBy as keyof Staff])
                 )
-              )}
+              )
+              .map((staff) => (
+                <TableRow key={staff.id}>
+                  <TableCell>{staff.id}</TableCell>
+                  <TableCell>{staff.userName}</TableCell>
+                  <TableCell>{staff.email}</TableCell>
+                  <TableCell>{staff.phoneNo}</TableCell>
+                  <TableCell>{staff.roleId}</TableCell>
+                  <TableCell>{staff.departmentId}</TableCell>
+                  <TableCell>{staff.remark}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        asChild
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                      >
+                        <Link href={`/staff/${staff.id}`}>
+                          <Pencil className="h-4 w-4 text-[#71717a]" />
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-8"
+                        onClick={() => setDeleteId(staff.id)}
+                      >
+                        <Trash2 className="h-4 w-4 text-[#df1212]" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       ) : (
@@ -185,6 +202,30 @@ export default function DepartmentPage() {
           </p>
         </div>
       )}
+
+      <Dialog open={deleteId !== null} onOpenChange={() => setDeleteId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="mb-4">Are you absolutely sure?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete your
+              staff and remove your data from our servers.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setDeleteId(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => deleteId && deleteMutation.mutate(deleteId)}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Continue"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

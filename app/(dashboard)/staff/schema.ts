@@ -1,13 +1,17 @@
 import { z } from "zod";
 
 export const staffSchema = z.object({
-  id: z.string().optional(),
-  username: z.string().min(1, "Username is required"),
+  id: z.number().optional(),
+  userName: z.string().min(1, "Username is required"),
+  password: z
+    .string()
+    .min(6, "Password must be at least 6 characters")
+    .optional(),
   email: z.string().email("Invalid email address"),
-  phoneNumber: z.string().min(1, "Phone number is required"),
-  role: z.string().min(1, "Role is required"),
-  department: z.string().min(1, "Department is required"),
-  remark: z.string().optional(),
+  phoneNo: z.string().min(1, "Phone number is required"),
+  roleId: z.number().min(1, "Role is required"),
+  departmentId: z.number().min(1, "Department is required"),
+  remark: z.string().nullable(),
 });
 
-export type Staff = z.infer<typeof staffSchema>;
+export type StaffFormData = z.infer<typeof staffSchema>;

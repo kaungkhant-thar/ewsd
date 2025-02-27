@@ -10,12 +10,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { UserCircle } from "lucide-react";
-import React from "react";
-import { useParams } from "next/navigation";
+import { Loader2, UserCircle } from "lucide-react";
+import React, { useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { staffSchema, type Staff } from "../schema";
+import { staffSchema, type StaffFormData } from "../schema";
 import {
   Form,
   FormControl,
@@ -25,35 +25,73 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
+import { Staff, staffApi } from "../api";
+import { toast } from "sonner";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { Role } from "../../staff-role/api";
+import { roleApi } from "../../staff-role/api";
 
 export default function Page() {
   const { id } = useParams();
-
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const isEdit = id !== "add";
 
-  const form = useForm<Staff>({
+  const form = useForm<StaffFormData>({
     resolver: zodResolver(staffSchema),
-    defaultValues: isEdit
-      ? {
-          username: "Pedro Duarte",
-          email: "@peduarte",
-          phoneNumber: "@peduarte",
-          role: "QA manager",
-          department: "QA Department",
-          remark: "Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
-        }
-      : {
-          username: "",
-          email: "",
-          phoneNumber: "",
-          role: "",
-          department: "",
-          remark: "",
-        },
+    defaultValues: {
+      userName: "",
+      email: "",
+      password: "",
+      phoneNo: "",
+      roleId: 1,
+      departmentId: 1,
+      remark: "",
+    },
   });
 
-  const handleSubmit = (data: Staff) => {
-    console.log("Form submitted:", data);
+  const { data: staff } = useQuery({
+    queryKey: ["staff", id],
+    queryFn: () => staffApi.fetchStaff(id as string),
+    enabled: isEdit,
+  });
+
+  useEffect(() => {
+    if (staff) {
+      form.reset(staff);
+    }
+  }, [staff, form]);
+
+  const { data: roles = [] } = useQuery<Role[]>({
+    queryKey: ["roles"],
+    queryFn: roleApi.fetchRoles,
+  });
+
+  const mutation = useMutation({
+    mutationFn: isEdit
+      ? (data: StaffFormData) =>
+          staffApi.updateStaff({ id: id as string, data })
+      : staffApi.createStaff,
+    onSuccess: () => {
+      toast.success(`Staff ${isEdit ? "updated" : "created"} successfully`);
+      queryClient.invalidateQueries({ queryKey: ["staffs"] });
+      router.push("/staff");
+    },
+    onError: (error: Error) => {
+      toast.error(
+        error.message || `Failed to ${isEdit ? "update" : "create"} staff`
+      );
+    },
+  });
+
+  const handleSubmit = async (data: StaffFormData) => {
+    // if (!isEdit && !data.password) {
+    //   form.setError("password", {
+    //     message: "Password is required for new staff",
+    //   });
+    //   return;
+    // }
+    mutation.mutate(data);
   };
 
   return (
@@ -67,7 +105,7 @@ export default function Page() {
             <div>
               <div className="text-sm text-gray-500">Staff /</div>
               <h2 className="text-xl md:text-2xl font-semibold text-gray-900">
-                {isEdit ? "Thet Aung Tun" : "Add"}
+                {isEdit ? form.getValues("userName") || "Loading..." : "Add"}
               </h2>
             </div>
           </div>
@@ -75,8 +113,8 @@ export default function Page() {
 
         <div className="text-sm text-gray-500 mb-6">
           {isEdit
-            ? "Make changes to your profile here. Click save when you're done."
-            : "Add your staff details here. Click save when you're done."}
+            ? "Make changes to staff details here. Click save when you're done."
+            : "Add new staff details here. Click save when you're done."}
         </div>
 
         <div className="bg-white rounded-lg shadow-sm p-6">
@@ -87,20 +125,22 @@ export default function Page() {
             >
               <FormField
                 control={form.control}
-                name="username"
+                name="userName"
                 render={({ field, formState }) => (
                   <FormItem className="flex flex-col lg:flex-row gap-4 lg:items-center">
                     <FormLabel className="text-sm font-medium text-gray-900 lg:basis-1/3 lg:text-right">
                       Username
                     </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        className={cn(
-                          formState.errors.username && "border-red-500"
-                        )}
-                      />
-                    </FormControl>
+                    <div className="lg:basis-2/3">
+                      <FormControl>
+                        <Input
+                          {...field}
+                          className={cn(
+                            formState.errors.userName && "border-red-500"
+                          )}
+                        />
+                      </FormControl>
+                    </div>
                   </FormItem>
                 )}
               />
@@ -113,88 +153,142 @@ export default function Page() {
                     <FormLabel className="text-sm font-medium text-gray-900 lg:basis-1/3 lg:text-right">
                       Email
                     </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        className={cn(
-                          formState.errors.email && "border-red-500"
-                        )}
-                      />
-                    </FormControl>
+                    <div className="lg:basis-2/3">
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="email"
+                          className={cn(
+                            formState.errors.email && "border-red-500"
+                          )}
+                        />
+                      </FormControl>
+                    </div>
                   </FormItem>
                 )}
               />
 
               <FormField
                 control={form.control}
-                name="phoneNumber"
+                name="password"
+                render={({ field, formState }) => (
+                  <FormItem className="flex flex-col lg:flex-row gap-4 lg:items-center">
+                    <FormLabel className="text-sm font-medium text-gray-900 lg:basis-1/3 lg:text-right">
+                      Password
+                    </FormLabel>
+                    <div className="lg:basis-2/3">
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="password"
+                          className={cn(
+                            formState.errors.password && "border-red-500"
+                          )}
+                        />
+                      </FormControl>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="phoneNo"
                 render={({ field, formState }) => (
                   <FormItem className="flex flex-col lg:flex-row gap-4 lg:items-center">
                     <FormLabel className="text-sm font-medium text-gray-900 lg:basis-1/3 lg:text-right">
                       Phone Number
                     </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        className={cn(
-                          formState.errors.phoneNumber && "border-red-500"
-                        )}
-                      />
-                    </FormControl>
+                    <div className="lg:basis-2/3">
+                      <FormControl>
+                        <Input
+                          {...field}
+                          className={cn(
+                            formState.errors.phoneNo && "border-red-500"
+                          )}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </div>
                   </FormItem>
                 )}
               />
 
               <FormField
                 control={form.control}
-                name="role"
-                render={({ field, formState }) => (
+                name="roleId"
+                render={({ field }) => (
                   <FormItem className="flex flex-col lg:flex-row gap-4 lg:items-center">
                     <FormLabel className="text-sm font-medium text-gray-900 lg:basis-1/3 lg:text-right">
                       Role
                     </FormLabel>
-                    <FormControl>
-                      <Select {...field}>
-                        <SelectTrigger
-                          className={cn(
-                            formState.errors.role && "border-red-500"
-                          )}
+                    <div className="lg:basis-2/3">
+                      <FormControl>
+                        <Select
+                          value={String(field.value)}
+                          onValueChange={(value) => {
+                            if (value) {
+                              const numValue = Number(value);
+                              field.onChange(numValue);
+                            }
+                          }}
                         >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="QA manager">QA manager</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
+                          <SelectTrigger
+                            className={cn(
+                              "border-[#e4e4e7]",
+                              field.value === undefined &&
+                                "text-muted-foreground"
+                            )}
+                          >
+                            <SelectValue placeholder="Select a role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {roles.map((role) => (
+                              <SelectItem key={role.id} value={String(role.id)}>
+                                {role.roleName}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                    </div>
                   </FormItem>
                 )}
               />
 
               <FormField
                 control={form.control}
-                name="department"
+                name="departmentId"
                 render={({ field, formState }) => (
                   <FormItem className="flex flex-col lg:flex-row gap-4 lg:items-center">
                     <FormLabel className="text-sm font-medium text-gray-900 lg:basis-1/3 lg:text-right">
                       Department
                     </FormLabel>
-                    <FormControl>
-                      <Select {...field}>
-                        <SelectTrigger
-                          className={cn(
-                            formState.errors.department && "border-red-500"
-                          )}
+                    <div className="lg:basis-2/3">
+                      <FormControl>
+                        <Select
+                          value={field.value?.toString()}
+                          onValueChange={(value) => {
+                            if (value) {
+                              const numValue = Number(value);
+                              field.onChange(numValue);
+                            }
+                          }}
                         >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="QA Department">
-                            QA Department
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
+                          <SelectTrigger
+                            className={cn(
+                              formState.errors.departmentId && "border-red-500"
+                            )}
+                          >
+                            <SelectValue placeholder="Select a department" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="1">QA Department</SelectItem>
+                            <SelectItem value="2">IT Department</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                    </div>
                   </FormItem>
                 )}
               />
@@ -207,24 +301,42 @@ export default function Page() {
                     <FormLabel className="text-sm font-medium text-gray-900 lg:basis-1/3 lg:text-right">
                       Remark
                     </FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        className={cn(
-                          formState.errors.remark && "border-red-500"
-                        )}
-                      />
-                    </FormControl>
+                    <div className="lg:basis-2/3">
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          value={field.value || ""}
+                          className={cn(
+                            formState.errors.remark && "border-red-500"
+                          )}
+                        />
+                      </FormControl>
+                    </div>
                   </FormItem>
                 )}
               />
 
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.push("/staff")}
+                >
+                  Cancel
+                </Button>
                 <Button
                   type="submit"
                   className="bg-primary-teal hover:bg-primary-teal/90"
+                  disabled={mutation.isPending}
                 >
-                  Save changes
+                  {mutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {isEdit ? "Updating..." : "Creating..."}
+                    </>
+                  ) : (
+                    <>{isEdit ? "Update" : "Create"}</>
+                  )}
                 </Button>
               </div>
             </form>
