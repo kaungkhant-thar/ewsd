@@ -5,18 +5,57 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import loginImage from './login.jpg';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useMutation } from '@tanstack/react-query';
+import { api, AUTH_TOKEN_KEY } from '@/lib/api';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { AxiosResponse } from 'axios';
+
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+interface LoginResponse {
+  token: string;
+  user: {
+    id: number;
+    email: string;
+  };
+}
+
+const loginUser = async (credentials: LoginCredentials): Promise<LoginResponse> => {
+  const response = await api.post<AxiosResponse<LoginResponse>>('/login', credentials);
+  localStorage.setItem(AUTH_TOKEN_KEY, response.data.data.token);
+  return response.data.data;
+};
 
 export default function LoginPage() {
-  const handleSubmit = (e: React.FormEvent) => {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const loginMutation = useMutation({
+    mutationFn: loginUser,
+    onSuccess: (response: LoginResponse) => {
+      toast.success('Login successful');
+      router.push('/staff-role');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to login');
+      setIsLoading(false);
+    },
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+
     const formData = new FormData(e.target as HTMLFormElement);
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
-    // Handle form submission
-    console.log('Form submitted:', email, password);
 
-    redirect('/role-management');
+    loginMutation.mutate({ email, password });
   };
 
   return (
@@ -43,7 +82,15 @@ export default function LoginPage() {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" placeholder="john@example.com" type="email" className="w-full" />
+              <Input
+                id="email"
+                name="email"
+                placeholder="john@example.com"
+                type="email"
+                className="w-full"
+                disabled={isLoading}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
@@ -53,9 +100,13 @@ export default function LoginPage() {
                 placeholder="Enter your password"
                 type="password"
                 className="w-full"
+                disabled={isLoading}
+                required
               />
             </div>
-            <Button className="w-full bg-primary-teal hover:bg-primary-teal/90">Sign In</Button>
+            <Button type="submit" className="w-full bg-primary-teal hover:bg-primary-teal/90" disabled={isLoading}>
+              {isLoading ? 'Signing in...' : 'Sign In'}
+            </Button>
           </div>
         </div>
       </form>
