@@ -44,16 +44,14 @@ export default function Page() {
       userName: "",
       email: "",
       phoneNo: "",
-      roleId: 1,
-      departmentId: 1,
+      roleId: undefined,
+      departmentId: undefined,
       remark: null,
       password: "",
     },
   });
 
-  console.log(form.formState.errors);
-
-  const { data: staff } = useQuery({
+  const { data: staff, refetch } = useQuery({
     queryKey: ["staff", id],
     queryFn: () => staffApi.fetchStaff(id as string),
     enabled: isEdit,
@@ -90,6 +88,7 @@ export default function Page() {
         },
     onSuccess: () => {
       toast.success(`Staff ${isEdit ? "updated" : "created"} x`);
+      refetch();
       queryClient.invalidateQueries({ queryKey: ["staffs"] });
       router.push("/staff");
     },
