@@ -23,9 +23,7 @@ export type StaffFormData = {
   remark: string | null;
 };
 
-export type StaffUpdateFormData = Omit<StaffFormData, "password"> & {
-  password?: string;
-};
+export type StaffUpdateFormData = Omit<StaffFormData, "password">;
 
 export const staffApi = {
   fetchStaffs: async (): Promise<Staff[]> =>

@@ -22,14 +22,15 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
-import { Staff, staffApi } from "../api";
+import { staffApi } from "../api";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Role } from "../../staff-role/api";
 import { roleApi } from "../../staff-role/api";
+import type { Department } from "../../department/api";
+import { departmentApi } from "../../department/api";
 
 export default function Page() {
   const { id } = useParams();
@@ -42,13 +43,15 @@ export default function Page() {
     defaultValues: {
       userName: "",
       email: "",
-      password: "",
       phoneNo: "",
       roleId: 1,
       departmentId: 1,
-      remark: "",
+      remark: null,
+      password: "",
     },
   });
+
+  console.log(form.formState.errors);
 
   const { data: staff } = useQuery({
     queryKey: ["staff", id],
@@ -58,7 +61,10 @@ export default function Page() {
 
   useEffect(() => {
     if (staff) {
-      form.reset(staff);
+      form.reset({
+        ...staff,
+        password: "",
+      });
     }
   }, [staff, form]);
 
@@ -67,13 +73,23 @@ export default function Page() {
     queryFn: roleApi.fetchRoles,
   });
 
+  const { data: departments = [] } = useQuery<Department[]>({
+    queryKey: ["departments"],
+    queryFn: departmentApi.fetchDepartments,
+  });
+
   const mutation = useMutation({
     mutationFn: isEdit
-      ? (data: StaffFormData) =>
-          staffApi.updateStaff({ id: id as string, data })
-      : staffApi.createStaff,
+      ? (data: StaffFormData) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { password, ...updateData } = data;
+          return staffApi.updateStaff({ id: id as string, data: updateData });
+        }
+      : (data: StaffFormData) => {
+          return staffApi.createStaff(data);
+        },
     onSuccess: () => {
-      toast.success(`Staff ${isEdit ? "updated" : "created"} successfully`);
+      toast.success(`Staff ${isEdit ? "updated" : "created"} x`);
       queryClient.invalidateQueries({ queryKey: ["staffs"] });
       router.push("/staff");
     },
@@ -85,12 +101,6 @@ export default function Page() {
   });
 
   const handleSubmit = async (data: StaffFormData) => {
-    // if (!isEdit && !data.password) {
-    //   form.setError("password", {
-    //     message: "Password is required for new staff",
-    //   });
-    //   return;
-    // }
     mutation.mutate(data);
   };
 
@@ -105,7 +115,7 @@ export default function Page() {
             <div>
               <div className="text-sm text-gray-500">Staff /</div>
               <h2 className="text-xl md:text-2xl font-semibold text-gray-900">
-                {isEdit ? form.getValues("userName") || "Loading..." : "Add"}
+                {isEdit ? staff?.userName || "Loading..." : "Add"}
               </h2>
             </div>
           </div>
@@ -135,9 +145,7 @@ export default function Page() {
                       <FormControl>
                         <Input
                           {...field}
-                          className={cn(
-                            formState.errors.userName && "border-red-500"
-                          )}
+                          error={formState.errors.userName?.message}
                         />
                       </FormControl>
                     </div>
@@ -158,9 +166,7 @@ export default function Page() {
                         <Input
                           {...field}
                           type="email"
-                          className={cn(
-                            formState.errors.email && "border-red-500"
-                          )}
+                          error={formState.errors.email?.message}
                         />
                       </FormControl>
                     </div>
@@ -168,28 +174,28 @@ export default function Page() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field, formState }) => (
-                  <FormItem className="flex flex-col lg:flex-row gap-4 lg:items-center">
-                    <FormLabel className="text-sm font-medium text-gray-900 lg:basis-1/3 lg:text-right">
-                      Password
-                    </FormLabel>
-                    <div className="lg:basis-2/3">
-                      <FormControl>
-                        <Input
-                          {...field}
-                          type="password"
-                          className={cn(
-                            formState.errors.password && "border-red-500"
-                          )}
-                        />
-                      </FormControl>
-                    </div>
-                  </FormItem>
-                )}
-              />
+              {!isEdit && (
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field, formState }) => (
+                    <FormItem className="flex flex-col lg:flex-row gap-4 lg:items-center">
+                      <FormLabel className="text-sm font-medium text-gray-900 lg:basis-1/3 lg:text-right">
+                        Password
+                      </FormLabel>
+                      <div className="lg:basis-2/3">
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="password"
+                            error={formState.errors.password?.message}
+                          />
+                        </FormControl>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <FormField
                 control={form.control}
@@ -203,12 +209,9 @@ export default function Page() {
                       <FormControl>
                         <Input
                           {...field}
-                          className={cn(
-                            formState.errors.phoneNo && "border-red-500"
-                          )}
+                          error={formState.errors.phoneNo?.message}
                         />
                       </FormControl>
-                      <FormMessage />
                     </div>
                   </FormItem>
                 )}
@@ -259,7 +262,7 @@ export default function Page() {
               <FormField
                 control={form.control}
                 name="departmentId"
-                render={({ field, formState }) => (
+                render={({ field }) => (
                   <FormItem className="flex flex-col lg:flex-row gap-4 lg:items-center">
                     <FormLabel className="text-sm font-medium text-gray-900 lg:basis-1/3 lg:text-right">
                       Department
@@ -267,7 +270,7 @@ export default function Page() {
                     <div className="lg:basis-2/3">
                       <FormControl>
                         <Select
-                          value={field.value?.toString()}
+                          value={String(field.value)}
                           onValueChange={(value) => {
                             if (value) {
                               const numValue = Number(value);
@@ -277,14 +280,22 @@ export default function Page() {
                         >
                           <SelectTrigger
                             className={cn(
-                              formState.errors.departmentId && "border-red-500"
+                              "border-[#e4e4e7]",
+                              field.value === undefined &&
+                                "text-muted-foreground"
                             )}
                           >
                             <SelectValue placeholder="Select a department" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="1">QA Department</SelectItem>
-                            <SelectItem value="2">IT Department</SelectItem>
+                            {departments.map((department) => (
+                              <SelectItem
+                                key={department.id}
+                                value={String(department.id)}
+                              >
+                                {department.departmentName}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </FormControl>
