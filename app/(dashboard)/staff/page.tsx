@@ -40,6 +40,8 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Role, roleApi } from "../staff-role/api";
+import { Department, departmentApi } from "../department/api";
 
 const columns = [
   "id",
@@ -56,6 +58,16 @@ export default function StaffPage() {
   const [keyword, setKeyword] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const queryClient = useQueryClient();
+
+  const { data: roles = [] } = useQuery<Role[]>({
+    queryKey: ["roles"],
+    queryFn: roleApi.fetchRoles,
+  });
+
+  const { data: departments = [] } = useQuery<Department[]>({
+    queryKey: ["departments"],
+    queryFn: departmentApi.fetchDepartments,
+  });
 
   const {
     data: staffs = [],
@@ -162,9 +174,17 @@ export default function StaffPage() {
                   <TableCell>{staff.userName}</TableCell>
                   <TableCell>{staff.email}</TableCell>
                   <TableCell>{staff.phoneNo}</TableCell>
-                  <TableCell>{staff.roleId}</TableCell>
-                  <TableCell>{staff.departmentId}</TableCell>
-                  <TableCell>{staff.remark}</TableCell>
+                  <TableCell>
+                    {roles.find((role) => role.id === staff.roleId)?.roleName}
+                  </TableCell>
+                  <TableCell>
+                    {
+                      departments.find(
+                        (department) => department.id === staff.departmentId
+                      )?.departmentName
+                    }
+                  </TableCell>
+                  <TableCell>{staff.remark || "--"}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button
