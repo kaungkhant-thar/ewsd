@@ -1,5 +1,5 @@
-'use client';
-import Logo from '@/components/ui/logo';
+"use client";
+import Logo from "@/components/ui/logo";
 import {
   Sidebar,
   SidebarContent,
@@ -11,50 +11,63 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/components/ui/sidebar';
-import { Building, Calendar, ClipboardList, LayoutGrid, User, Users } from 'lucide-react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { NavUser } from './nav-user';
+} from "@/components/ui/sidebar";
+import {
+  Building,
+  Calendar,
+  ClipboardList,
+  LayoutGrid,
+  User,
+  Users,
+  Menu,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { NavUser } from "./nav-user";
 
 const linkSections = [
   {
-    title: 'Overview',
+    title: "Overview",
     links: [
       {
         icon: <LayoutGrid className="size-4" />,
-        text: 'System Report',
-        href: '/system-report',
+        text: "System Report",
+        href: "/system-report",
       },
     ],
   },
   {
-    title: 'Features',
+    title: "Features",
     links: [
       {
         icon: <ClipboardList className="size-4" />,
-        text: 'Ideas',
-        href: '/ideas',
+        text: "Ideas",
+        href: "/ideas",
       },
       {
         icon: <User className="size-4" />,
-        text: 'Staff',
-        href: '/staff',
+        text: "Staff",
+        href: "/staff",
+      },
+      {
+        icon: <Menu className="size-4" />,
+        text: "Category",
+        href: "/category",
       },
       {
         icon: <Users className="size-4" />,
-        text: 'Staff Role',
-        href: '/staff-role',
+        text: "Staff Role",
+        href: "/staff-role",
       },
       {
         icon: <Calendar className="size-4" />,
-        text: 'Academic Year',
-        href: '/academic-year',
+        text: "Academic Year",
+        href: "/academic-year",
       },
       {
         icon: <Building className="size-4" />,
-        text: 'Department',
-        href: '/department',
+        text: "Department",
+        href: "/department",
       },
     ],
   },
@@ -98,7 +111,9 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={{ name: 'John Doe', email: 'john@synergy.com', avatar: '' }} />
+        <NavUser
+          user={{ name: "John Doe", email: "john@synergy.com", avatar: "" }}
+        />
       </SidebarFooter>
     </Sidebar>
   );
