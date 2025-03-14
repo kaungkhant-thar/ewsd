@@ -21,7 +21,7 @@ export const departmentApi = {
       .then((res) => res.data.data),
 
   fetchDepartment: async (id: string): Promise<DepartmentFormData> =>
-    api.get(`/get/departments/${id}`).then((res) => res.data.data),
+    api.get(`/get/department/${id}`).then((res) => res.data.data),
 
   createDepartment: async (data: DepartmentFormData) =>
     api.post("/add/department", data),
