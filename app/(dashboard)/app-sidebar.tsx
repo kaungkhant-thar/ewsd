@@ -12,69 +12,22 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import {
-  Building,
-  Calendar,
-  ClipboardList,
-  LayoutGrid,
-  User,
-  Users,
-  Menu,
-} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NavUser } from "./nav-user";
-
-const linkSections = [
-  {
-    title: "Overview",
-    links: [
-      {
-        icon: <LayoutGrid className="size-4" />,
-        text: "System Report",
-        href: "/system-report",
-      },
-    ],
-  },
-  {
-    title: "Features",
-    links: [
-      {
-        icon: <ClipboardList className="size-4" />,
-        text: "Ideas",
-        href: "/ideas",
-      },
-      {
-        icon: <User className="size-4" />,
-        text: "Staff",
-        href: "/staff",
-      },
-      {
-        icon: <Menu className="size-4" />,
-        text: "Category",
-        href: "/category",
-      },
-      {
-        icon: <Users className="size-4" />,
-        text: "Staff Role",
-        href: "/staff-role",
-      },
-      {
-        icon: <Calendar className="size-4" />,
-        text: "Academic Year",
-        href: "/academic-year",
-      },
-      {
-        icon: <Building className="size-4" />,
-        text: "Department",
-        href: "/department",
-      },
-    ],
-  },
-];
+import { menuConfig } from "./config/menu-config";
+import { staffApi } from "./staff/api";
+import { useQuery } from "@tanstack/react-query";
 
 export function AppSidebar() {
   const pathname = usePathname();
+
+  const { data: user } = useQuery({
+    queryKey: ["user"],
+    queryFn: staffApi.fetchLoggedInUser,
+  });
+
+  const menuSections = user ? menuConfig[user.roleName] : [];
 
   return (
     <Sidebar className="py-2">
@@ -90,12 +43,12 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        {linkSections.map(({ title, links }) => (
+        {menuSections.map(({ title, items }) => (
           <SidebarGroup key={title}>
             <SidebarGroupLabel>{title}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu className="px-2">
-                {links.map(({ icon, text, href }) => (
+                {items.map(({ icon, text, href }) => (
                   <SidebarMenuItem key={text}>
                     <SidebarMenuButton asChild isActive={pathname === href}>
                       <Link href={href}>
@@ -111,9 +64,15 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser
-          user={{ name: "John Doe", email: "john@synergy.com", avatar: "" }}
-        />
+        {user && (
+          <NavUser
+            user={{
+              name: user.userName,
+              email: user.email,
+              avatar: "",
+            }}
+          />
+        )}
       </SidebarFooter>
     </Sidebar>
   );
