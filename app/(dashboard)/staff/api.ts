@@ -26,6 +26,9 @@ export type StaffFormData = {
 export type StaffUpdateFormData = Omit<StaffFormData, "password">;
 
 export const staffApi = {
+  fetchLoggedInUser: async (): Promise<Staff & { roleName: string }> =>
+    api.get("/user").then((res) => res.data.data),
+
   fetchStaffs: async (): Promise<Staff[]> =>
     api.get<AxiosResponse<Staff[]>>("/readUsers").then((res) => res.data.data),
 

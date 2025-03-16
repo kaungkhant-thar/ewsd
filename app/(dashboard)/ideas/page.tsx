@@ -13,7 +13,7 @@ import { Loader2, Plus, Search, TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ideaApi,categoryApi } from "./api";
+import { ideaApi, categoryApi } from "./api";
 import IdeaCard from "../IdeaCard";
 import {
   Dialog,
@@ -67,7 +67,8 @@ export default function IdeaPage() {
       const matchesKeyword = Object.values(idea).some((value) =>
         String(value).toLowerCase().includes(keyword.toLowerCase())
       );
-      const matchesCategory = category === "all" || idea.categoryId === parseInt(category);
+      const matchesCategory =
+        category === "all" || idea.categoryId === parseInt(category);
       return matchesKeyword && matchesCategory;
     }) ?? [];
 
@@ -113,30 +114,30 @@ export default function IdeaPage() {
           />
         </div>
         <div className="flex items-center gap-6">
-        <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Sort by" />
-          </SelectTrigger>
-          <SelectContent>
-            {sortOptions.map(({ value, label }) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={`${category}`} onValueChange={setCategory}>
-          <SelectTrigger className="w-60">
-            <SelectValue placeholder="Category" />
-          </SelectTrigger>
-          <SelectContent>
-            {categoryOptions.map(({ value, label }) => (
-              <SelectItem key={value} value={`${value}`}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              {sortOptions.map(({ value, label }) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={`${category}`} onValueChange={setCategory}>
+            <SelectTrigger className="w-60">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categoryOptions.map(({ value, label }) => (
+                <SelectItem key={value} value={`${value}`}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -145,7 +146,10 @@ export default function IdeaPage() {
           {filteredRecords
             .sort((a, b) => {
               if (sortBy === "createdAt") {
-                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                return (
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime()
+                );
               }
               return String(a[sortBy as keyof typeof a]).localeCompare(
                 String(b[sortBy as keyof typeof b])
@@ -154,7 +158,7 @@ export default function IdeaPage() {
             .map((idea) => (
               <IdeaCard
                 key={idea.id}
-                {...idea as any}
+                {...(idea as any)}
                 // onDelete={() => setDeleteId(idea.id)}
               />
             ))}
@@ -166,7 +170,8 @@ export default function IdeaPage() {
           </div>
           <h2 className="text-xl font-medium mb-2">No ideas found</h2>
           <p className="text-muted-foreground">
-            Try adjusting your search or filters to find what you're looking for.
+            Try adjusting your search or filters to find what you're looking
+            for.
           </p>
         </div>
       )}
