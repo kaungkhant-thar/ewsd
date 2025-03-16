@@ -188,7 +188,11 @@ const CategoryPage = () => {
         <div>
           <h2 className="flex text-base font-medium space-x-2 items-center">
             <TriangleAlert className="text-[#DC2626]" />
-            <span>No exact matches found</span>
+            {categories.length === 0 ? (
+              <span>No categories found</span>
+            ) : (
+              <span>No exact matches found</span>
+            )}
           </h2>
           <p className="text-sm mt-2">
             Keep trying! Double-check the spelling or try a broader search.

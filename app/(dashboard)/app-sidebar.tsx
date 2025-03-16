@@ -26,7 +26,6 @@ export function AppSidebar() {
     queryKey: ["user"],
     queryFn: staffApi.fetchLoggedInUser,
   });
-  console.log({ user });
 
   const menuSections = user ? menuConfig[user.roleName] : [];
 
