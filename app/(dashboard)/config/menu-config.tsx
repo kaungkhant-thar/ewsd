@@ -51,11 +51,6 @@ export const menuConfig: RoleMenuConfig = {
           href: "/staff",
         },
         {
-          icon: <Menu className="size-4" />,
-          text: "Category",
-          href: "/category",
-        },
-        {
           icon: <Users className="size-4" />,
           text: "Staff Role",
           href: "/staff-role",
