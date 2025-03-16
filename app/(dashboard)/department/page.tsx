@@ -16,12 +16,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import _ from "lodash";
-import { Pencil, Plus, Search, Trash2, TriangleAlert } from "lucide-react";
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { Loader2, Pencil, Plus, Search, Trash2, TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import { departmentApi } from "./api";
 import {
   Dialog,
   DialogContent,
@@ -30,7 +31,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Department, departmentApi } from "./api";
 
 export default function DepartmentPage() {
   const router = useRouter();
@@ -65,6 +65,7 @@ export default function DepartmentPage() {
       setDeleteId(null);
     },
     onError: (error: Error) => {
+      setDeleteId(null)
       toast.error(error.message || "Failed to delete department");
     },
   });
@@ -83,11 +84,20 @@ export default function DepartmentPage() {
     }
   };
 
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between py-4">
         <h1 className="text-2xl font-medium">Manage Department</h1>
-        <Button>
+        <Button onClick={() => router.push('/department/new')}>
           <Plus />
           <span>Add Department</span>
         </Button>
@@ -128,7 +138,7 @@ export default function DepartmentPage() {
           <TableBody>
             {filteredRecords
               .sort((a, b) =>
-                (a[sortBy as never] as string).localeCompare(b[sortBy as never])
+                (`${a[sortBy as never]}`).localeCompare(`${b[sortBy as never]}`)
               )
               .map(({ id, departmentName, remark }, i) => (
                 <TableRow key={id}>
@@ -170,6 +180,29 @@ export default function DepartmentPage() {
           </p>
         </div>
       )}
+            <Dialog open={deleteId !== null} onOpenChange={() => setDeleteId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="mb-4">Are you absolutely sure?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete your
+              staff and remove your data from our servers.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setDeleteId(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => deleteId && deleteMutation.mutate(deleteId)}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Continue"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
