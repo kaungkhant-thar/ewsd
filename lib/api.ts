@@ -3,9 +3,12 @@ import { QueryClient } from "@tanstack/react-query";
 import { redirect } from "next/navigation";
 import { toast } from "sonner";
 
+
+export const BE_HOST = "http://localhost";
+
 // Create axios instance with default config
 export const api = axios.create({
-  baseURL: "http://localhost/api",
+  baseURL: `${BE_HOST}/api`,
   headers: {
     "Content-Type": "application/json",
   },
