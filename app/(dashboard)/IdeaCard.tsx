@@ -40,7 +40,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useState, useEffect, useRef } from "react";
-
+import { BE_HOST } from "@/lib/api";
 interface IdeaDocument {
   id: number;
   fileName: string;
@@ -241,18 +241,18 @@ export default function IdeaCard({
                   >
                     {isPDF ? (
                       <iframe
-                        src={`http://localhost${publicFileUrl}`}
+                        src={`${BE_HOST}${publicFileUrl}`}
                         className="size-full"
                       />
                     ) : (
                       <img
-                        src={`http://localhost${publicFileUrl}`}
+                        src={`${BE_HOST}${publicFileUrl}`}
                         className="object-cover size-full"
                       />
                     )}
                     <div className="absolute top-1.5 right-1.5 flex space-x-1 z-10 ">
                       <a
-                        href={`http://localhost${publicFileUrl}`}
+                        href={`${BE_HOST}${publicFileUrl}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="bg-white border border-slate-200 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -261,7 +261,7 @@ export default function IdeaCard({
                       </a>
                       {/* Download not work since it's cross origin */}
                       <a
-                        href={`http://localhost${publicFileUrl}`}
+                        href={`${BE_HOST}${publicFileUrl}`}
                         download
                         className="bg-white border border-slate-200 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       >
