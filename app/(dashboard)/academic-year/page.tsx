@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import _ from 'lodash';
-import { Pencil, Plus, Search, Trash2, TriangleAlert } from 'lucide-react';
+import { Pencil, Plus, Search, Trash2, TriangleAlert, MoreVertical, Download, FileDown } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -20,6 +20,12 @@ import {
 import { AcademicYear, academicYearApi, AcademicYearQueryParams } from './api';
 import { formatDate } from '@/lib/utils';
 import { useDebounce } from '@/hooks/use-debounce';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export default function AcademicYearPage() {
   const router = useRouter();
@@ -144,23 +150,45 @@ export default function AcademicYearPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {academicYears.map(({ id, academicName, startDate, endDate, closureDate, finalClosureDate, remark }) => (
-              <TableRow key={id}>
-                <TableCell>{id}</TableCell>
-                <TableCell className="font-medium">{academicName}</TableCell>
-                <TableCell>{formatDate(startDate)}</TableCell>
-                <TableCell>{formatDate(endDate)}</TableCell>
-                <TableCell>{formatDate(closureDate)}</TableCell>
-                <TableCell>{formatDate(finalClosureDate)}</TableCell>
-                <TableCell className="max-w-[200px] truncate">{remark}</TableCell>
+            {academicYears.map((academicYear) => (
+              <TableRow key={academicYear.id}>
+                <TableCell>{academicYear.id}</TableCell>
+                <TableCell className="font-medium">{academicYear.academicName}</TableCell>
+                <TableCell>{formatDate(academicYear.startDate)}</TableCell>
+                <TableCell>{formatDate(academicYear.endDate)}</TableCell>
+                <TableCell>{formatDate(academicYear.closureDate)}</TableCell>
+                <TableCell>{formatDate(academicYear.finalClosureDate)}</TableCell>
+                <TableCell className="max-w-[200px] truncate">{academicYear.remark}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    <Button size="icon" variant="ghost" className="size-8" onClick={() => handleEdit(id)}>
+                    <Button variant="ghost" size="icon" className="size-8" onClick={() => handleEdit(academicYear.id)}>
                       <Pencil className="h-4 w-4 text-[#71717a]" />
                     </Button>
-                    <Button size="icon" variant="ghost" className="size-8" onClick={() => handleDelete(id)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-8"
+                      onClick={() => handleDelete(academicYear.id)}
+                    >
                       <Trash2 className="h-4 w-4 text-[#df1212]" />
                     </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="size-8">
+                          <MoreVertical className="h-4 w-4 text-[#71717a]" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => academicYearApi.downloadIdeasCsv(academicYear)}>
+                          <FileDown className="mr-2 h-4 w-4" />
+                          Download Ideas CSV
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => academicYearApi.downloadSubmittedFiles(academicYear)}>
+                          <Download className="mr-2 h-4 w-4" />
+                          Download Submitted Files
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </TableCell>
               </TableRow>

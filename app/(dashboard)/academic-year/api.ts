@@ -1,5 +1,6 @@
 import { api } from '@/lib/api';
 import { AxiosResponse } from 'axios';
+import { toast } from 'sonner';
 
 export interface AcademicYear {
   id: number;
@@ -69,4 +70,46 @@ export const academicYearApi = {
     api.put(`/update/academic-year/${id}`, data),
 
   deleteAcademicYear: async (id: number) => api.delete(`/delete/academic-year/${id}`),
+
+  downloadIdeasCsv: async (academicYear: AcademicYear) => {
+    try {
+      const response = await api.get(`/academic-year/${academicYear.id}/ideas-csv`, {
+        responseType: 'blob',
+      });
+
+      const blob = new Blob([response.data], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ideas-in-academic-year-${academicYear.academicName}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success('Ideas CSV downloaded successfully');
+    } catch (error) {
+      toast.error('Failed to download ideas CSV');
+    }
+  },
+
+  downloadSubmittedFiles: async (academicYear: AcademicYear) => {
+    try {
+      const response = await api.get(`/academic-year/${academicYear.id}/submitted-files`, {
+        responseType: 'blob',
+      });
+
+      const blob = new Blob([response.data], { type: 'application/zip' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `submitted-files-in-academic-year-${academicYear.academicName}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success('Submitted files downloaded successfully');
+    } catch (error) {
+      toast.error('Failed to download submitted files');
+    }
+  },
 };
