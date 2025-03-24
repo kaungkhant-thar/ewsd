@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import loginImage from './login.jpg';
-import { useRouter } from 'next/navigation';
-import { useMutation } from '@tanstack/react-query';
-import { api, AUTH_TOKEN_KEY } from '@/lib/api';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { AxiosResponse } from 'axios';
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import loginImage from "./login.jpg";
+import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { api, AUTH_TOKEN_KEY } from "@/lib/api";
+import { useState } from "react";
+import { toast } from "sonner";
+import { AxiosResponse } from "axios";
 
 interface LoginCredentials {
   email: string;
@@ -25,8 +25,13 @@ interface LoginResponse {
   };
 }
 
-const loginUser = async (credentials: LoginCredentials): Promise<LoginResponse> => {
-  const response = await api.post<AxiosResponse<LoginResponse>>('/login', credentials);
+const loginUser = async (
+  credentials: LoginCredentials
+): Promise<LoginResponse> => {
+  const response = await api.post<AxiosResponse<LoginResponse>>(
+    "/login",
+    credentials
+  );
   localStorage.setItem(AUTH_TOKEN_KEY, response.data.data.token);
   return response.data.data;
 };
@@ -38,11 +43,12 @@ export default function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: loginUser,
     onSuccess: (response: LoginResponse) => {
-      toast.success('Login successful');
-      router.push('/staff-role');
+      toast.success("Login successful");
+      // push to /system-report page
+      router.push("/system-report");
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to login');
+      toast.error(error.message || "Failed to login");
       setIsLoading(false);
     },
   });
@@ -52,8 +58,8 @@ export default function LoginPage() {
     setIsLoading(true);
 
     const formData = new FormData(e.target as HTMLFormElement);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
 
     loginMutation.mutate({ email, password });
   };
@@ -73,11 +79,19 @@ export default function LoginPage() {
       </div>
 
       {/* Form container */}
-      <form onSubmit={handleSubmit} className="flex items-center justify-center p-8">
+      <form
+        onSubmit={handleSubmit}
+        className="flex items-center justify-center p-8"
+      >
         <div className="mx-auto w-full max-w-md space-y-6">
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight text-blue-950">Sign in to your account</h1>
-            <p className="text-gray-600">Enter your credentials to access student discussions, events, and more.</p>
+            <h1 className="text-3xl font-bold tracking-tight text-blue-950">
+              Sign in to your account
+            </h1>
+            <p className="text-gray-600">
+              Enter your credentials to access student discussions, events, and
+              more.
+            </p>
           </div>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -104,8 +118,12 @@ export default function LoginPage() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full bg-primary-teal hover:bg-primary-teal/90" disabled={isLoading}>
-              {isLoading ? 'Signing in...' : 'Sign In'}
+            <Button
+              type="submit"
+              className="w-full bg-primary-teal hover:bg-primary-teal/90"
+              disabled={isLoading}
+            >
+              {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </div>
         </div>
