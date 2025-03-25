@@ -210,3 +210,17 @@ export const userApi = {
       .get<AxiosResponse<User>>("/user")
       .then((res) => res.data.data),
 };
+
+export const academicYearApi = {
+  getCurrentAcademicYear: async () => {
+    const { data } = await api.get('/get/academic-years');
+    // Find the current academic year (where current date falls between start and end date)
+    const currentAY = data.data.find((ay: any) => {
+      const startDate = new Date(ay.startDate);
+      const endDate = new Date(ay.endDate);
+      const now = new Date();
+      return now >= startDate && now <= endDate;
+    });
+    return currentAY;
+  }
+};
