@@ -13,7 +13,7 @@ import { Loader2, Plus, Search, TriangleAlert, ChevronLeft, ChevronRight } from 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ideaApi, categoryApi } from "./api";
+import { ideaApi, categoryApi } from "../ideas/api";
 import IdeaCard from "../IdeaCard";
 import {
   Dialog,
@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { staffApi } from "../staff/api";
 
-export default function IdeaPage() {
+export default function SubmittedIdeasPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [sortBy, setSortBy] = useState("createdAt");
@@ -52,27 +52,26 @@ export default function IdeaPage() {
     })),
   ];
 
-  const {
-    data: ideasResponse,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["ideas", sortBy, category, keyword, currentPage],
-    queryFn: () => ideaApi.fetchIdeas(sortBy, category, keyword, currentPage),
-  });
-
   const { data: user } = useQuery({
     queryKey: ["user"],
     queryFn: staffApi.fetchLoggedInUser,
   });
 
-  const isReportable = user?.roleName === "staff";
+  const {
+    data: ideasResponse,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["userIdeas", user?.id, sortBy, category, keyword, currentPage],
+    queryFn: () => user ? ideaApi.fetchIdeasByUserId(user.id, sortBy, category, keyword, currentPage) : null,
+    enabled: !!user,
+  });
 
   const deleteMutation = useMutation({
     mutationFn: ideaApi.deleteIdea,
     onSuccess: () => {
       toast.success("Idea deleted successfully");
-      queryClient.invalidateQueries({ queryKey: ["ideas"] });
+      queryClient.invalidateQueries({ queryKey: ["userIdeas"] });
       setDeleteId(null);
     },
     onError: (error: Error) => {
@@ -81,7 +80,7 @@ export default function IdeaPage() {
     },
   });
 
-  if (isLoading) {
+  if (isLoading || !user) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -98,7 +97,7 @@ export default function IdeaPage() {
   return (
     <div className="container mx-auto py-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-medium">Ideas</h1>
+        <h1 className="text-2xl font-medium">My Submitted Ideas</h1>
         <Button onClick={() => router.push("/ideas/new")}>
           <Plus className="mr-2 h-4 w-4" />
           <span>Submit New Idea</span>
@@ -111,7 +110,7 @@ export default function IdeaPage() {
           <Input
             value={keyword}
             className="pl-9"
-            placeholder="Search ideas..."
+            placeholder="Search my ideas..."
             onChange={(e) => {
               setKeyword(e.target.value);
               setCurrentPage(1); // Reset to first page when searching
@@ -159,9 +158,9 @@ export default function IdeaPage() {
               <IdeaCard
                 key={idea.id}
                 {...(idea as any)}
-                isReportable={isReportable}
-                currentUserId={user?.id}
-                // onDelete={() => setDeleteId(idea.id)}
+                isReportable={false}
+                currentUserId={user.id}
+                onDelete={() => setDeleteId(idea.id)}
               />
             ))}
           </div>
@@ -210,8 +209,7 @@ export default function IdeaPage() {
           </div>
           <h2 className="text-xl font-medium mb-2">No ideas found</h2>
           <p className="text-muted-foreground">
-            Try adjusting your search or filters to find what you're looking
-            for.
+            You haven't submitted any ideas yet. Try submitting your first idea!
           </p>
         </div>
       )}

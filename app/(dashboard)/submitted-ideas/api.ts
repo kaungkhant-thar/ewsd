@@ -26,6 +26,8 @@ export interface Idea {
   createdAt: string;
   updatedAt: string;
   ideaDocuments: IdeaDocument[];
+  totalLikes: number;
+  totalUnlikes: number;
 }
 
 export interface IdeaFormData {
@@ -76,36 +78,12 @@ export interface User {
   updatedAt: string;
 }
 
-export interface Comment {
+type Reaction = {
   id: number;
-  desc: string;
-  userId: number;
-  userName: string;
-  isAnonymous: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface IdeaDetail {
-  id: number;
-  title: string;
-  content: string;
-  isAnonymous: boolean;
-  viewCount: number;
-  popularity: number;
-  userId: number;
-  userName: string;
-  categoryId: number;
-  categoryName: string;
-  academicYearId: number;
+  user_id: number;
+  idea_id: number;
+  reaction: 'like' | 'unlike';
   remark: string | null;
-  createdAt: string;
-  updatedAt: string;
-  ideaDocuments: IdeaDocument[];
-  totalLikes: number;
-  totalUnlikes: number;
-  commentsCount: number;
-  comments: Comment[];
 }
 
 export const ideaApi = {
@@ -167,20 +145,6 @@ export const ideaApi = {
     
     return response.data;
   },
-
-  fetchIdeaDetails: async (id: number): Promise<IdeaDetail> => {
-    const { data } = await api.get<AxiosResponse<IdeaDetail>>(`/get/idea/${id}/details`);
-    return data.data;
-  },
-  
-  submitComment: async (ideaId: number, content: string, userId: number, isAnonymous: boolean = false) => {
-    const { data } = await api.post(`/add/ideas/${ideaId}/comment`, {
-      desc:content,
-      userId,
-      isAnonymous
-    });
-    return data;
-  },
 };
 
 export const categoryApi = {
@@ -209,4 +173,31 @@ export const userApi = {
     api
       .get<AxiosResponse<User>>("/user")
       .then((res) => res.data.data),
+};
+
+export const reactionApi = {
+  createReaction: async (ideaId: number, userId: number, reaction: 'like' | 'unlike') => {
+    const { data } = await api.post('/createReaction', {
+      ideaId,
+      userId,
+      reaction,
+      remark: null
+    });
+    return data;
+  },
+
+  getTotalLikes: async (ideaId: number) => {
+    const { data } = await api.get(`/getTotalLike/${ideaId}`);
+    return data;
+  },
+
+  getTotalUnlikes: async (ideaId: number) => {
+    const { data } = await api.get(`/getTotalUnLike/${ideaId}`);
+    return data;
+  },
+
+  getReactionsByIdeaId: async (ideaId: number) => {
+    const { data } = await api.get<AxiosResponse<Reaction[]>>(`/readReactionByIdeaId/${ideaId}`);
+    return data.data;
+  }
 };
