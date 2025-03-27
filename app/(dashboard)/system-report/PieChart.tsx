@@ -62,7 +62,7 @@ export function SystemReportPie() {
           Percentages of ideas by each Department
         </CardTitle>
       </CardHeader>
-      <CardContent className="grid grid-cols-2 gap-6">
+      <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <ChartContainer
             config={chartConfig}

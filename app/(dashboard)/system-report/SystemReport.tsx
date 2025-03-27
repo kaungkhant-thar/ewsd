@@ -1,44 +1,25 @@
 "use client";
 import {
-  FileText,
-  Eye,
-  MessageCircle,
-  Building,
-  ActivitySquare,
-} from "lucide-react";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-} from "recharts";
-import { academicYearApi } from "../academic-year/api";
-import { useQuery } from "@tanstack/react-query";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useQuery } from "@tanstack/react-query";
+import { Building, Eye, FileText, MessageCircle } from "lucide-react";
 import { useState } from "react";
-import { ReportPieChart, SystemReportPie } from "./PieChart";
-import { systemReportApi } from "./api";
 import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { ActiveUsers } from "./ActiveUsers";
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { academicYearApi } from "../academic-year/api";
+import { SystemReportPie } from "./PieChart";
+import { systemReportApi } from "./api";
 
 export const SystemReport = () => {
   const {
@@ -77,25 +58,13 @@ export const SystemReport = () => {
     { name: "Department 6", value: 45 },
   ];
 
-  // Mock data for top active users
-  const topUsers = Array(7)
-    .fill(null)
-    .map((_, index) => ({
-      id: index + 1,
-      name: "Olivia Martin",
-      email: "oliver@gmail.com",
-      ideas: index === 2 ? 10 : 1,
-      views: index === 3 ? 8 : 1,
-      comments: index === 1 ? 4 : 1,
-    }));
-
   return (
     <div className="max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold mb-10">System report</h1>
 
       <div className="space-y-6">
         <Select value={academicYear} onValueChange={setAcademicYear}>
-          <SelectTrigger className="w-[500px]">
+          <SelectTrigger className="lg:w-[500px]">
             <SelectValue placeholder="Please select academic year" />
           </SelectTrigger>
           <SelectContent>
@@ -186,21 +155,23 @@ export const SystemReport = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {topUsers.map((user) => (
-                    <tr key={user.id} className="border-b border-gray-100">
+                  {topUsersData.map((user) => (
+                    <tr key={user.userId} className="border-b border-gray-100">
                       <td colSpan={2} className="py-2">
                         <div className="flex items-center space-x-3">
                           <div>
-                            <p className="text-sm font-medium">{user.name}</p>
+                            <p className="text-sm font-medium">
+                              {user.userName}
+                            </p>
                             <p className="text-xs text-gray-500">
                               {user.email}
                             </p>
                           </div>
                         </div>
                       </td>
-                      <td className="text-center">{user.ideas}</td>
-                      <td className="text-center">{user.views}</td>
-                      <td className="text-center">{user.comments}</td>
+                      <td className="text-center">{user.ideaCount}</td>
+                      <td className="text-center">{user.viewCount}</td>
+                      <td className="text-center">{user.commentCount}</td>
                     </tr>
                   ))}
                 </tbody>
