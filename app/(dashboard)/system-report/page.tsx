@@ -2,11 +2,7 @@ import React from "react";
 import { SystemReport } from "./SystemReport";
 
 const Page = () => {
-  return (
-    <div>
-      <SystemReport />
-    </div>
-  );
+  return <SystemReport />;
 };
 
 export default Page;
