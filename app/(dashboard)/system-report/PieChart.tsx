@@ -10,51 +10,29 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { ReportPieChart } from "./test";
+import { ChartsData } from "./api";
 
-const chartData = [
-  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
-  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-  { browser: "firefox", visitors: 287, fill: "var(--color-firefox)" },
-  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 190, fill: "var(--color-other)" },
-];
-// Mock data for the pie chart
-const departmentData = [
-  { name: "Engineering Department", value: 20, color: "#F4A261" },
-  { name: "Marketing Department", value: 20, color: "#E9C46A" },
-  { name: "HR Department", value: 20, color: "#264653" },
-  { name: "Networking Department", value: 20, color: "#2A9D8F" },
-  { name: "Student Department", value: 20, color: "#E76F51" },
-];
+type Props = {
+  chartData: ChartsData;
+};
 
-const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  chrome: {
-    label: "Chrome",
-    color: "hsl(var(--chart-1))",
-  },
-  safari: {
-    label: "Safari",
-    color: "hsl(var(--chart-2))",
-  },
-  firefox: {
-    label: "Firefox",
-    color: "hsl(var(--chart-3))",
-  },
-  edge: {
-    label: "Edge",
-    color: "hsl(var(--chart-4))",
-  },
-  other: {
-    label: "Other",
-    color: "hsl(var(--chart-5))",
-  },
-} satisfies ChartConfig;
+export function SystemReportPie({ chartData }: Props) {
+  const charts = chartData.data.map((dept, index) => ({
+    label: dept.departmentName,
+    value: dept.ideaCount,
+    percent: dept.percentage,
+    fill: `hsl(var(--chart-${index + 1}))`,
+  }));
 
-export function SystemReportPie() {
+  const config = charts.reduce((acc, chart, index) => {
+    acc[chart.label] = {
+      label: chart.label,
+      color: `hsl(var(--chart-${index + 1}))`,
+    };
+    return acc;
+  }, {} as ChartConfig);
+  console.log({ config, charts });
+
   return (
     <Card className="flex flex-col">
       <CardHeader className=" pb-0">
@@ -65,7 +43,7 @@ export function SystemReportPie() {
       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <ChartContainer
-            config={chartConfig}
+            config={config}
             className="mx-auto aspect-square max-h-[250px]"
           >
             <PieChart>
@@ -74,9 +52,9 @@ export function SystemReportPie() {
                 content={<ChartTooltipContent hideLabel />}
               />
               <Pie
-                data={chartData}
-                dataKey="visitors"
-                nameKey="browser"
+                data={charts}
+                dataKey="value"
+                nameKey="label"
                 innerRadius={60}
                 strokeWidth={5}
               >
@@ -95,14 +73,14 @@ export function SystemReportPie() {
                             y={viewBox.cy}
                             className="fill-foreground text-3xl font-bold"
                           >
-                            {1125}
+                            {chartData.totalIdeas}
                           </tspan>
                           <tspan
                             x={viewBox.cx}
                             y={(viewBox.cy || 0) + 24}
                             className="fill-muted-foreground"
                           >
-                            Visitors
+                            Ideas
                           </tspan>
                         </text>
                       );
@@ -115,13 +93,13 @@ export function SystemReportPie() {
         </div>
         <div className="flex-1 pb-0 flex items-center gap-6">
           <ul className="flex-1 space-y-3 ">
-            {departmentData.map((department) => (
-              <li key={department.name} className="flex items-center gap-2">
+            {charts.map((chart, index) => (
+              <li key={index} className="flex items-center gap-2">
                 <div
                   className="w-4 h-4 "
-                  style={{ backgroundColor: department.color }}
+                  style={{ backgroundColor: chart.fill }}
                 />
-                <span>{department.name}</span>
+                <span>{chart.label}</span>
               </li>
             ))}
           </ul>
