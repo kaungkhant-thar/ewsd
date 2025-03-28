@@ -7,8 +7,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
-import { Building, Eye, FileText, MessageCircle } from "lucide-react";
-import { useState } from "react";
+import { Building, Eye, FileText, Loader2, MessageCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -25,33 +25,52 @@ export const SystemReport = () => {
   const [academicYear, setAcademicYear] = useState<string | undefined>(
     undefined
   );
-  const { data: academicYears = [] } = useQuery({
-    queryKey: ["academicYears"],
-    queryFn: () => academicYearApi.fetchAcademicYears(),
-  });
+  const { isLoading: isAcademicYearsLoading, data: academicYears = [] } =
+    useQuery({
+      queryKey: ["academicYears"],
+      queryFn: () => academicYearApi.fetchAcademicYears(),
+    });
+
+  useEffect(() => {
+    if (!isAcademicYearsLoading && academicYears?.length) {
+      setAcademicYear((prev) => prev ?? academicYears[0].id.toString());
+    }
+  }, [isAcademicYearsLoading, academicYears]);
 
   const { data: topUsersData = [] } = useQuery({
     queryKey: ["topUsers"],
     queryFn: () => systemReportApi.fetchTopUsers("1"),
   });
 
-  const { data: cardsData } = useQuery({
+  const { data: cardsData, isLoading: isCardsDataLoading } = useQuery({
     queryKey: ["cardsData", academicYear],
     queryFn: () => systemReportApi.fetchCardReports(academicYear || ""),
     enabled: !!academicYear,
   });
 
-  const { data: ideasByDeptData } = useQuery({
-    queryKey: ["ideasByDeptData", academicYear],
-    queryFn: () => systemReportApi.fetchChartsData(academicYear || ""),
-    enabled: !!academicYear,
-  });
+  const { data: ideasByDeptData, isLoading: isIdeasByDeptDataLoading } =
+    useQuery({
+      queryKey: ["ideasByDeptData", academicYear],
+      queryFn: () => systemReportApi.fetchChartsData(academicYear || ""),
+      enabled: !!academicYear,
+    });
 
   const ideasByDepart = ideasByDeptData?.data.map((dept) => ({
     name: dept.departmentName,
     value: dept.ideaCount,
   }));
 
+  if (
+    isAcademicYearsLoading ||
+    isCardsDataLoading ||
+    isIdeasByDeptDataLoading
+  ) {
+    return (
+      <div className="flex items-center justify-center h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+      </div>
+    );
+  }
   return (
     <div className="max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold mb-10">System report</h1>
@@ -106,7 +125,7 @@ export const SystemReport = () => {
           </div>
         )}
 
-        {ideasByDeptData && (
+        {!!ideasByDeptData?.totalIdeas && (
           <>
             <div className=" max-w-2xl">
               <SystemReportPie chartData={ideasByDeptData} />
@@ -189,6 +208,12 @@ export const SystemReport = () => {
               </div>
             </div>
           </>
+        )}
+
+        {!ideasByDeptData?.totalIdeas && (
+          <div className="flex items-center justify-center h-[400px]">
+            <p className="text-gray-500">No data available</p>
+          </div>
         )}
       </div>
     </div>
