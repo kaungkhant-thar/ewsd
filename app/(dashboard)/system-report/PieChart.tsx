@@ -99,7 +99,9 @@ export function SystemReportPie({ chartData }: Props) {
                   className="w-4 h-4 "
                   style={{ backgroundColor: chart.fill }}
                 />
-                <span>{chart.label}</span>
+                <span>
+                  {chart.label} ({chart.percent}%)
+                </span>
               </li>
             ))}
           </ul>
