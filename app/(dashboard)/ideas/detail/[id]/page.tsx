@@ -25,6 +25,8 @@ export default function IdeaDetailPage() {
   const [comment, setComment] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
 
+  const isManager = user?.roleName === "manager";
+
   const { data: idea, isLoading } = useQuery({
     queryKey: ["idea", params.id],
     queryFn: () => ideaApi.fetchIdeaDetails(Number(params.id)),
@@ -53,6 +55,8 @@ export default function IdeaDetailPage() {
     day: "numeric",
   });
 
+  console.log(isManager)
+
   return (
     <div className="container max-w-5xl py-8">
       <Link
@@ -68,7 +72,7 @@ export default function IdeaDetailPage() {
             <Avatar>
               <AvatarImage />
               <AvatarFallback>
-                {idea.isAnonymous
+                {!isManager && idea.isAnonymous
                   ? "AN"
                   : idea.userName
                       .split(" ", 2)
@@ -80,7 +84,7 @@ export default function IdeaDetailPage() {
               <p className="text-sm">
                 Posted by{" "}
                 <span className="font-semibold">
-                  {idea.isAnonymous ? "Anonymous" : idea.userName}
+                    {!isManager && idea.isAnonymous ? "Anonymous" : idea.userName}
                 </span>
               </p>
             </div>
@@ -202,7 +206,7 @@ export default function IdeaDetailPage() {
                   <Avatar className="size-8">
                     <AvatarImage />
                     <AvatarFallback>
-                      {comment.isAnonymous
+                      { !isManager && comment.isAnonymous
                         ? "AN"
                         : comment.userName
                             .split(" ", 2)
@@ -212,7 +216,7 @@ export default function IdeaDetailPage() {
                   </Avatar>
                   <div>
                     <p className="text-sm font-medium">
-                      {comment.isAnonymous ? "Anonymous" : comment.userName}
+                      { !isManager && comment.isAnonymous ? "Anonymous" : comment.userName}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {new Date(comment.createdAt).toLocaleDateString("en-US", {
