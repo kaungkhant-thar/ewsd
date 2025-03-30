@@ -38,7 +38,7 @@ export const SystemReport = () => {
   }, [isAcademicYearsLoading, academicYears]);
 
   const { data: topUsersData = [] } = useQuery({
-    queryKey: ["topUsers"],
+    queryKey: ["topUsers", academicYear],
     queryFn: () => systemReportApi.fetchTopUsers(academicYear || ""),
     enabled: !!academicYear,
   });
