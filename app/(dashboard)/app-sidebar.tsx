@@ -1,5 +1,5 @@
-"use client";
-import Logo from "@/components/ui/logo";
+'use client';
+import Logo from '@/components/ui/logo';
 import {
   Sidebar,
   SidebarContent,
@@ -11,21 +11,26 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { NavUser } from "./nav-user";
-import { menuConfig } from "./config/menu-config";
-import { staffApi } from "./staff/api";
-import { useQuery } from "@tanstack/react-query";
+} from '@/components/ui/sidebar';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { NavUser } from './nav-user';
+import { menuConfig } from './config/menu-config';
+import { staffApi } from './staff/api';
+import { useQuery } from '@tanstack/react-query';
+
+export const useCurrentUser = () => {
+  const { data: user } = useQuery({
+    queryKey: ['user'],
+    queryFn: staffApi.fetchLoggedInUser,
+  });
+  return user;
+};
 
 export function AppSidebar() {
   const pathname = usePathname();
 
-  const { data: user } = useQuery({
-    queryKey: ["user"],
-    queryFn: staffApi.fetchLoggedInUser,
-  });
+  const user = useCurrentUser();
 
   const menuSections = user ? menuConfig[user.roleName] : [];
 
@@ -69,7 +74,7 @@ export function AppSidebar() {
             user={{
               name: user.userName,
               email: user.email,
-              avatar: "",
+              avatar: '',
             }}
           />
         )}

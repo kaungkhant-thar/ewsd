@@ -89,10 +89,10 @@ export default function StaffManagementPage() {
     <div>
       <div className="flex items-center justify-between py-4">
         <h1 className="text-2xl font-medium">Manage Staff Role</h1>
-        <Button onClick={() => router.push('/staff-role/new')}>
+        {/* <Button onClick={() => router.push('/staff-role/new')}>
           <Plus />
           <span>Add Staff Role</span>
-        </Button>
+        </Button> */}
       </div>
 
       <div className="flex items-center justify-between mt-2.5 mb-6">
@@ -142,9 +142,9 @@ export default function StaffManagementPage() {
                       <Button variant="ghost" size="icon" className="size-8" onClick={() => handleEdit(role.id)}>
                         <Pencil className="h-4 w-4 text-[#71717a]" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="size-8" onClick={() => handleDelete(role.id)}>
+                      {/* <Button variant="ghost" size="icon" className="size-8" onClick={() => handleDelete(role.id)}>
                         <Trash2 className="h-4 w-4 text-[#df1212]" />
-                      </Button>
+                      </Button> */}
                     </div>
                   </TableCell>
                 </TableRow>

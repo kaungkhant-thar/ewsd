@@ -2,6 +2,7 @@ import { api } from '@/lib/api';
 import { AxiosResponse } from 'axios';
 import { toast } from 'sonner';
 
+export type AcademicYearStatus = 'past' | 'future' | 'current' | 'closed' | 'final_closed';
 export interface AcademicYear {
   id: number;
   academicName: string;
@@ -12,6 +13,7 @@ export interface AcademicYear {
   remark: string | null;
   createdAt: string;
   updatedAt: string;
+  status: AcademicYearStatus;
 }
 
 export interface AcademicYearFormData {
@@ -21,6 +23,7 @@ export interface AcademicYearFormData {
   closureDate: string;
   finalClosureDate: string;
   remark: string | null;
+  status?: AcademicYearStatus;
 }
 
 export interface AcademicYearQueryParams {
