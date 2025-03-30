@@ -28,9 +28,11 @@ export interface ChartsData {
   }>;
 }
 export const systemReportApi = {
-  fetchTopUsers: async (id: string) =>
+  fetchTopUsers: async (academicYear: string) =>
     api
-      .get<AxiosResponse<TopUser[]>>(`/getTopActiveUserByDepartment/${id}`)
+      .get<AxiosResponse<TopUser[]>>(
+        `/getTopActiveUserByAcademicYear/${academicYear}`
+      )
       .then((res) => res.data.data),
   fetchCardReports: async (academicYear: string) =>
     api
