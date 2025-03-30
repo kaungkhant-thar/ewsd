@@ -18,6 +18,7 @@ export interface Idea {
   reportCount: number;
   createdAt: string;
   updatedAt: string;
+  userId: number;
 }
 
 export interface User {

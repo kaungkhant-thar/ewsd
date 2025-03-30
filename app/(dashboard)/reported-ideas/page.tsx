@@ -81,7 +81,7 @@ export default function ManageIdeasPage() {
             rows.push({
               id: report.id,
               reportTitle: idea.title || "Untitled",
-              staffName: user.name || "Unknown User",
+              staffName: (user as any).userName || "Unknown User",
               reportedDate: new Date(report.createdAt).toLocaleString("en-US", {
                 day: "numeric",
                 month: "short",
@@ -91,7 +91,7 @@ export default function ManageIdeasPage() {
                 hour12: true,
               }),
               ideaId: report.ideaId,
-              userId: report.userId,
+              userId: idea.userId,
             });
           } catch (error) {
             console.error("Error fetching related data:", error);

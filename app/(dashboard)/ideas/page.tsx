@@ -24,6 +24,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { staffApi } from "../staff/api";
+import { api } from "@/lib/api";
 
 export default function IdeaPage() {
   const router = useRouter();
@@ -108,6 +109,8 @@ export default function IdeaPage() {
       year: 'numeric'
     });
   };
+
+
 
   return (
     <>
