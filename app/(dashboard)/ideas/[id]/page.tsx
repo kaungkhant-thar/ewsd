@@ -4,15 +4,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ideaApi } from "../api";
-import { useParams, useRouter } from "next/navigation";
-import { Eye, ThumbsDown, ThumbsUp } from "lucide-react";
-import { BE_HOST } from "@/lib/api";
 import { useStaff } from "@/hooks/use-staff";
+import { BE_HOST } from "@/lib/api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Ban, Eye, EyeOff, ThumbsDown, ThumbsUp } from "lucide-react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import Link from "next/link";
+import { ideaApi } from "../api";
 
 export default function IdeaDetailPage() {
   const params = useParams();
@@ -93,6 +93,7 @@ export default function IdeaDetailPage() {
               onClick={() => hidePostMutation.mutate()}
               disabled={hidePostMutation.isPending}
             >
+              <EyeOff className="h-4 w-4" />
               Hide post
             </Button>
             <Button 
@@ -101,6 +102,7 @@ export default function IdeaDetailPage() {
               onClick={() => blockUserMutation.mutate()}
               disabled={blockUserMutation.isPending}
             >
+              <Ban className="h-4 w-4" />
               Block user
             </Button>
           </div>
