@@ -168,6 +168,11 @@ export const ideaApi = {
     return response.data;
   },
 
+  blockUser: async (id: number) => {
+    const { data } = await api.post(`/blockUser/${id}`);
+    return data;
+  },
+
   fetchIdeaDetails: async (id: number): Promise<IdeaDetail> => {
     const { data } = await api.get<AxiosResponse<IdeaDetail>>(`/get/idea/${id}/details`);
     return data.data;

@@ -199,5 +199,10 @@ export const reactionApi = {
   getReactionsByIdeaId: async (ideaId: number) => {
     const { data } = await api.get<AxiosResponse<Reaction[]>>(`/readReactionByIdeaId/${ideaId}`);
     return data.data;
+  },
+  
+  reportIdea: async (reportData: { userId: number, ideaId: number }) => {
+    const { data } = await api.post('/report/idea', reportData);
+    return data;
   }
 };
