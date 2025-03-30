@@ -236,7 +236,7 @@ export default function ManageIdeasPage() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="!text-[#025964] px-0"
+                        className="!text-[#025964] px-0 hover:bg-transparent"
                         onClick={() => handleView(row.ideaId)}
                       >
                         <Eye className="h-4 w-4" />
@@ -244,16 +244,14 @@ export default function ManageIdeasPage() {
                       </Button>
                       <Button
                         size="sm"
-                        variant="default"
-                        className="bg-[#DF1212] hover:bg-red-700"
+                        variant="destructive"
                         onClick={() => handleHidePost(row.id, row.ideaId)}
                       >
                         Hide Post
                       </Button>
                       <Button
                         size="sm"
-                        variant="default"
-                        className="border border-[#DF1212] text-[#DF1212] bg-transparent"
+                        variant="destructiveOutline"
                         onClick={() => handleBlockUser(row.id, row.userId)}
                       >
                         Block User
