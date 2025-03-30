@@ -85,11 +85,13 @@ export default function RoleFormPage() {
               </label>
               <Input
                 id="roleName"
+                disabled
                 value={formData.roleName}
                 onChange={(e) => setFormData((prev) => ({ ...prev, roleName: e.target.value }))}
                 className="w-full"
                 required
               />
+              <span className="text-xs text-gray-500">Role name cannot be changed.</span>
             </div>
 
             <div className="grid gap-2">

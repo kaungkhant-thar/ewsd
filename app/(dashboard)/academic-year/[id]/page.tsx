@@ -12,6 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useCurrentUser } from '@/app/(dashboard)/app-sidebar';
 
 const formSchema = z
   .object({
@@ -79,9 +80,14 @@ export default function AcademicYearFormPage() {
   const queryClient = useQueryClient();
   const isNew = params.id === 'new';
 
-  // Setup react-hook-form with zod validation
+  const currentUser = useCurrentUser();
+
+  const readOnly = !['admin', 'manager'].includes(currentUser?.roleName || '');
+
+  // Setup react-hook-form with zod validation first with empty defaults
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
+    disabled: readOnly,
     defaultValues: {
       academicName: '',
       startDate: '',
@@ -92,6 +98,7 @@ export default function AcademicYearFormPage() {
     },
   });
 
+  // Then fetch the data
   const { data: academicYear, isLoading } = useQuery({
     queryKey: ['academicYear', params.id],
     queryFn: () => academicYearApi.fetchAcademicYear(params.id as string),
@@ -100,17 +107,17 @@ export default function AcademicYearFormPage() {
 
   // Update form values when data is loaded
   useEffect(() => {
-    if (academicYear) {
+    if (!isNew && academicYear) {
       form.reset({
         academicName: academicYear.academicName,
-        startDate: academicYear.startDate?.split('T')[0] || '', // Format for date input
+        startDate: academicYear.startDate?.split('T')[0] || '',
         endDate: academicYear.endDate?.split('T')[0] || '',
         closureDate: academicYear.closureDate?.split('T')[0] || '',
         finalClosureDate: academicYear.finalClosureDate?.split('T')[0] || '',
         remark: academicYear.remark || '',
       });
     }
-  }, [academicYear, form]);
+  }, [academicYear, form, isNew]);
 
   const mutation = useMutation({
     mutationFn: isNew
@@ -146,6 +153,8 @@ export default function AcademicYearFormPage() {
     return <div>Loading...</div>;
   }
 
+  const ableToDownload = ['past', 'final_closed'].includes(academicYear?.status || '');
+
   return (
     <main className="flex-1 overflow-auto">
       <div className="flex justify-between items-center mb-2">
@@ -162,28 +171,38 @@ export default function AcademicYearFormPage() {
         </div>
       </div>
 
-      <div className="text-sm text-gray-500 mb-8 font-medium">
-        {isNew ? 'Add your academic year details here' : 'Make changes to your academic year here'}. Click save when
-        you're done.
-      </div>
+      {!readOnly && (
+        <div className="text-sm text-gray-500 mb-8 font-medium">
+          {isNew ? 'Add your academic year details here' : 'Make changes to your academic year here'}. Click save when
+          you're done.
+        </div>
+      )}
 
-      {!isNew && (
+      {!isNew && !readOnly && (
         <div className="flex gap-3 mb-6">
           <Button
             variant="outline"
             onClick={() => academicYearApi.downloadIdeasCsv(academicYear as AcademicYear)}
-            className="flex items-center gap-2"
+            className="flex items-center text-left gap-3"
+            disabled={!ableToDownload}
           >
             <FileDown className="h-4 w-4" />
-            Download Ideas CSV
+            <div>
+              Download Ideas CSV
+              {!ableToDownload && <p className="text-xs text-gray-500">Can be downloaded after final closure date.</p>}
+            </div>
           </Button>
           <Button
             variant="outline"
             onClick={() => academicYearApi.downloadSubmittedFiles(academicYear as AcademicYear)}
-            className="flex items-center gap-2"
+            className="flex items-center text-left gap-3"
+            disabled={!ableToDownload}
           >
             <Download className="h-4 w-4" />
-            Download Submitted Files
+            <div>
+              Download Submitted Files
+              {!ableToDownload && <p className="text-xs text-gray-500">Can be downloaded after final closure date.</p>}
+            </div>
           </Button>
         </div>
       )}
@@ -299,9 +318,15 @@ export default function AcademicYearFormPage() {
               <Button type="button" variant="outline" onClick={() => router.push('/academic-year')}>
                 Cancel
               </Button>
-              <Button type="submit" className="bg-primary-teal hover:bg-primary-teal/90" disabled={mutation.isPending}>
-                {mutation.isPending ? 'Saving...' : 'Save changes'}
-              </Button>
+              {!readOnly && (
+                <Button
+                  type="submit"
+                  className="bg-primary-teal hover:bg-primary-teal/90"
+                  disabled={mutation.isPending}
+                >
+                  {mutation.isPending ? 'Saving...' : 'Save changes'}
+                </Button>
+              )}
             </div>
           </form>
         </Form>
