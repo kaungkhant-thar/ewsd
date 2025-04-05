@@ -31,6 +31,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardFooter,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 // Combined interface for the reports table
 interface ReportedIdeaRow {
@@ -180,22 +188,22 @@ export default function ManageIdeasPage() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between py-4">
-        <h1 className="text-2xl font-medium">Manage Reported Ideas</h1>
+    <div className="container mx-auto">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4">
+        <h1 className="text-xl lg:text-2xl font-semibold">Manage Reported Ideas</h1>
       </div>
-      <div className="flex items-center justify-between mt-2.5 mb-6">
-        <div className="relative w-96">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-2.5 mb-6">
+        <div className="relative w-full sm:w-96">
           <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#71717a]" />
           <Input
             value={keyword}
-            className="pl-9 border-[#e4e4e7]"
+            className="pl-9 border-[#e4e4e7] w-full"
             placeholder="Type a command or search..."
             onChange={(e) => setKeyword(e.target.value)}
           />
         </div>
         <Select onValueChange={setSortBy} defaultValue="id">
-          <SelectTrigger className="w-28">
+          <SelectTrigger className="w-full sm:w-28">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
           <SelectContent>
@@ -208,17 +216,60 @@ export default function ManageIdeasPage() {
         </Select>
       </div>
       {filteredRecords.length > 0 ? (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[100px]">ID</TableHead>
-              <TableHead>Report title</TableHead>
-              <TableHead>Staff</TableHead>
-              <TableHead>Reported Date</TableHead>
-              <TableHead className="text-right">Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+        <>
+          {/* Table view for larger screens */}
+          <div className="hidden sm:block overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[100px]">ID</TableHead>
+                  <TableHead>Report title</TableHead>
+                  <TableHead>Staff</TableHead>
+                  <TableHead>Reported Date</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredRecords
+                  .sort((a, b) =>
+                    `${a[sortBy as keyof typeof a]}`.localeCompare(
+                      `${b[sortBy as keyof typeof b]}`
+                    )
+                  )
+                  .map((row) => (
+                    <TableRow key={row.id}>
+                      <TableCell>{row.id}</TableCell>
+                      <TableCell className="min-w-[200px]">{row.reportTitle}</TableCell>
+                      <TableCell>{row.staffName}</TableCell>
+                      <TableCell className="whitespace-nowrap">{row.reportedDate}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2.5">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="!text-[#025964] px-0 hover:bg-transparent"
+                            onClick={() => handleView(row.ideaId)}
+                          >
+                            <Eye className="h-4 w-4" />
+                            <span className="text-xs">View</span>
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleHidePost(row.id, row.ideaId)}
+                          >
+                            Hide Post
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Card view for mobile screens */}
+          <div className="sm:hidden space-y-4">
             {filteredRecords
               .sort((a, b) =>
                 `${a[sortBy as keyof typeof a]}`.localeCompare(
@@ -226,42 +277,57 @@ export default function ManageIdeasPage() {
                 )
               )
               .map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{row.id}</TableCell>
-                  <TableCell>{row.reportTitle}</TableCell>
-                  <TableCell>{row.staffName}</TableCell>
-                  <TableCell>{row.reportedDate}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2.5">
+                <Card key={row.id} className="bg-[#F9FBFD] border border-[#D1D9E2]">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 p-2.5 lg:px-5 lg:py-4">
+                    <div className="flex items-center space-x-3">
+                      <Badge
+                        variant="outline"
+                        className="flex items-center gap-2 py-1.5 lg:py-2 px-2 lg:px-4 bg-muted/50"
+                      >
+                        <span className="text-xs lg:text-sm font-semibold text-primary">
+                          ID: {row.id}
+                        </span>
+                      </Badge>
+                      <div>
+                        <p className="text-sm">
+                          Reported by{" "}
+                          <span className="font-semibold">
+                            {row.staffName}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <Separator />
+                  <CardContent className="p-2.5 lg:px-5 lg:pt-6 space-y-2 lg:space-y-6">
+                    <div>
+                      <h1 className="text-lg lg:text-2xl font-semibold mb-2">{row.reportTitle}</h1>
+                      <p className="text-sm lg:text-lg text-[#09090B] mb-6">Reported on: {row.reportedDate}</p>
+                    </div>
+                    <div className="flex justify-end gap-2">
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="!text-[#025964] px-0 hover:bg-transparent"
+                        className="!text-[#025964] px-0 hover:bg-transparent max-lg:flex-1"
                         onClick={() => handleView(row.ideaId)}
                       >
-                        <Eye className="h-4 w-4" />
+                        <Eye className="h-4 w-4 mr-1" />
                         <span className="text-xs">View</span>
                       </Button>
                       <Button
                         size="sm"
                         variant="destructive"
+                        className="max-lg:flex-1"
                         onClick={() => handleHidePost(row.id, row.ideaId)}
                       >
                         Hide Post
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="destructiveOutline"
-                        onClick={() => handleBlockUser(row.id, row.userId)}
-                      >
-                        Block User
-                      </Button>
                     </div>
-                  </TableCell>
-                </TableRow>
+                  </CardContent>
+                </Card>
               ))}
-          </TableBody>
-        </Table>
+          </div>
+        </>
       ) : (
         <div>
           <h2 className="flex text-base font-medium space-x-2 items-center">

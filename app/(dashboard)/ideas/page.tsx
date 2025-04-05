@@ -73,6 +73,8 @@ export default function IdeaPage() {
     queryFn: staffApi.fetchLoggedInUser,
   });
 
+  
+
   const isReportable = user?.roleName === "staff";
 
   const deleteMutation = useMutation({
@@ -110,13 +112,13 @@ export default function IdeaPage() {
     });
   };
 
-
+  const isManagerView = user?.roleName === "manager";
 
   return (
     <>
       {currentAY && (
         <div className="sticky top-0 z-50 w-full bg-[#E6FCEF] rounded-[6px]">
-          <div className="container flex items-center gap-x-4 h-24 px-6">
+          <div className="container flex items-center gap-x-4 h-24 px-4 sm:px-6">
             <p className="text-[#007633] text-sm font-medium">
               <span className="font-semibold">Notice:</span> <br/>
                The idea posting for this academic year <span className="font-semibold">{currentAY.name}</span> is {formatDate(currentAY.startDate)} - {formatDate(currentAY.endDate)}
@@ -125,33 +127,33 @@ export default function IdeaPage() {
         </div>
       )}
       <div className="container mx-auto py-6">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-medium">Ideas</h1>
-          <Button onClick={() => router.push("/ideas/new")}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <h1 className="text-xl lg:text-2xl font-medium">Ideas</h1>
+          <Button onClick={() => router.push("/ideas/new")} className="w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" />
             <span>Submit New Idea</span>
           </Button>
         </div>
 
-        <div className="flex items-center justify-between gap-4 mb-8">
-          <div className="relative flex-1 max-w-md">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+          <div className="relative w-full sm:flex-1 sm:max-w-md">
             <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={keyword}
-              className="pl-9"
+              className="pl-9 w-full"
               placeholder="Search ideas..."
               onChange={(e) => {
                 setKeyword(e.target.value);
-                setCurrentPage(1); // Reset to first page when searching
+                setCurrentPage(1);
               }}
             />
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-6 w-full sm:w-auto">
             <Select value={sortBy} onValueChange={(value) => {
               setSortBy(value);
-              setCurrentPage(1); // Reset to first page when sorting
+              setCurrentPage(1);
             }}>
-              <SelectTrigger className="w-40">
+              <SelectTrigger className="w-full sm:w-40">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
@@ -164,9 +166,9 @@ export default function IdeaPage() {
             </Select>
             <Select value={`${category}`} onValueChange={(value) => {
               setCategory(value);
-              setCurrentPage(1); // Reset to first page when changing category
+              setCurrentPage(1);
             }}>
-              <SelectTrigger className="w-60">
+              <SelectTrigger className="w-full sm:w-60">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
@@ -189,32 +191,34 @@ export default function IdeaPage() {
                   {...(idea as any)}
                   isReportable={isReportable}
                   currentUserId={user?.id}
-                  // onDelete={() => setDeleteId(idea.id)}
+                  isManagerView={isManagerView}
                 />
               ))}
             </div>
             
             {/* Pagination Controls */}
-            <div className="flex items-center justify-between mt-8">
-              <div className="text-sm text-muted-foreground">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8">
+              <div className="text-sm text-muted-foreground text-center sm:text-left">
                 Showing {pagination.from} to {pagination.to} of {pagination.total} results
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
+                  className="h-8 w-8 p-0 sm:h-9 sm:w-9"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-0.5 sm:gap-1">
                   {Array.from({ length: pagination.lastPage }, (_, i) => i + 1).map((page) => (
                     <Button
                       key={page}
                       variant={currentPage === page ? "default" : "outline"}
                       size="sm"
                       onClick={() => handlePageChange(page)}
+                      className="h-8 w-8 p-0 text-sm sm:h-9 sm:w-9"
                     >
                       {page}
                     </Button>
@@ -225,6 +229,7 @@ export default function IdeaPage() {
                   size="sm"
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === pagination.lastPage}
+                  className="h-8 w-8 p-0 sm:h-9 sm:w-9"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </Button>

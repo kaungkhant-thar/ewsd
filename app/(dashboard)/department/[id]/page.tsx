@@ -63,7 +63,7 @@ export default function DepartmentFormPage() {
   }
   return (
     <main className="flex-1 overflow-auto">
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-4">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-primary-teal rounded-lg flex items-center justify-center">
             <Building className="h-6 w-6 text-white" />
@@ -84,12 +84,12 @@ export default function DepartmentFormPage() {
         . Click save when you're done.
       </div>
 
-      <div className="border border-[#E4E4E7] rounded-lg shadow-sm p-6 flex justify-end">
+      <div className="border border-[#E4E4E7] rounded-lg shadow-sm p-4 sm:p-6">
         <form onSubmit={handleSubmit} className="space-y-6 w-full">
-          <div className="flex space-x-4 justify-end">
+          <div className="flex flex-col sm:flex-row sm:space-x-4 sm:justify-end gap-2 sm:gap-0">
             <label
               htmlFor="departmentName"
-              className="text-sm font-medium text-gray-900 w-40 text-right mt-2.5"
+              className="text-sm font-medium text-gray-900 sm:w-40 sm:text-right"
             >
               Department name
             </label>
@@ -102,15 +102,15 @@ export default function DepartmentFormPage() {
                   departmentName: e.target.value,
                 }))
               }
-              className="w-full max-w-[50rem]"
+              className="w-full sm:max-w-[50rem]"
               required
             />
           </div>
 
-          <div className="flex space-x-4 justify-end">
+          <div className="flex flex-col sm:flex-row sm:space-x-4 sm:justify-end gap-2 sm:gap-0">
             <label
               htmlFor="remark"
-              className="text-sm font-medium text-gray-900 w-40 text-right mt-2.5"
+              className="text-sm font-medium text-gray-900 sm:w-40 sm:text-right"
             >
               Remark
             </label>
@@ -120,21 +120,22 @@ export default function DepartmentFormPage() {
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, remark: e.target.value }))
               }
-              className="min-h-[150px] w-full max-w-[50rem]"
+              className="min-h-[150px] w-full sm:max-w-[50rem]"
             />
           </div>
 
-          <div className="flex justify-end space-x-4">
+          <div className="flex flex-col sm:flex-row justify-end gap-2 sm:space-x-4">
             <Button
               type="button"
               variant="outline"
               onClick={() => router.push("/department")}
+              className="w-full sm:w-auto"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="bg-primary-teal hover:bg-primary-teal/90"
+              className="bg-primary-teal hover:bg-primary-teal/90 w-full sm:w-auto"
               disabled={mutation.isPending}
             >
               {mutation.isPending ? "Saving..." : "Save changes"}

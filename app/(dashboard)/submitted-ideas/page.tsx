@@ -95,34 +95,34 @@ export default function SubmittedIdeasPage() {
   };
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-medium">My Submitted Ideas</h1>
-        <Button onClick={() => router.push("/ideas/new")}>
+    <div className="container mx-auto py-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <h1 className="text-xl lg:text-2xl font-medium">My Submitted Ideas</h1>
+        <Button onClick={() => router.push("/ideas/new")} className="w-full sm:w-auto">
           <Plus className="mr-2 h-4 w-4" />
           <span>Submit New Idea</span>
         </Button>
       </div>
 
-      <div className="flex items-center justify-between gap-4 mb-8">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+        <div className="relative w-full sm:flex-1 sm:max-w-md">
           <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={keyword}
-            className="pl-9"
+            className="pl-9 w-full"
             placeholder="Search my ideas..."
             onChange={(e) => {
               setKeyword(e.target.value);
-              setCurrentPage(1); // Reset to first page when searching
+              setCurrentPage(1);
             }}
           />
         </div>
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-6 w-full sm:w-auto">
           <Select value={sortBy} onValueChange={(value) => {
             setSortBy(value);
-            setCurrentPage(1); // Reset to first page when sorting
+            setCurrentPage(1);
           }}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-full sm:w-40">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
@@ -135,9 +135,9 @@ export default function SubmittedIdeasPage() {
           </Select>
           <Select value={`${category}`} onValueChange={(value) => {
             setCategory(value);
-            setCurrentPage(1); // Reset to first page when changing category
+            setCurrentPage(1);
           }}>
-            <SelectTrigger className="w-60">
+            <SelectTrigger className="w-full sm:w-60">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
@@ -166,26 +166,28 @@ export default function SubmittedIdeasPage() {
           </div>
           
           {/* Pagination Controls */}
-          <div className="flex items-center justify-between mt-8">
-            <div className="text-sm text-muted-foreground">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8">
+            <div className="text-sm text-muted-foreground text-center sm:text-left">
               Showing {pagination.from} to {pagination.to} of {pagination.total} results
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
+                className="h-8 w-8 p-0 sm:h-9 sm:w-9"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-0.5 sm:gap-1">
                 {Array.from({ length: pagination.lastPage }, (_, i) => i + 1).map((page) => (
                   <Button
                     key={page}
                     variant={currentPage === page ? "default" : "outline"}
                     size="sm"
                     onClick={() => handlePageChange(page)}
+                    className="h-8 w-8 p-0 text-sm sm:h-9 sm:w-9"
                   >
                     {page}
                   </Button>
@@ -196,6 +198,7 @@ export default function SubmittedIdeasPage() {
                 size="sm"
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === pagination.lastPage}
+                className="h-8 w-8 p-0 sm:h-9 sm:w-9"
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
