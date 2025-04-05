@@ -11,13 +11,18 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarRail,
+  useSidebar,
 } from '@/components/ui/sidebar';
+import { SheetTitle } from '@/components/ui/sheet';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { NavUser } from './nav-user';
 import { menuConfig } from './config/menu-config';
 import { staffApi } from './staff/api';
 import { useQuery } from '@tanstack/react-query';
+import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export const useCurrentUser = () => {
   const { data: user } = useQuery({
@@ -29,13 +34,15 @@ export const useCurrentUser = () => {
 
 export function AppSidebar() {
   const pathname = usePathname();
-
+  const { isMobile, setOpenMobile } = useSidebar();
   const user = useCurrentUser();
 
   const menuSections = user ? menuConfig[user.roleName] : [];
 
   return (
-    <Sidebar className="py-2">
+    <Sidebar className="py-2 h-screen" collapsible={isMobile ? 'offcanvas' : 'none'} aria-label="Main navigation">
+      {!isMobile && <SidebarRail />}
+      {isMobile && <SheetTitle className="sr-only">Navigation Menu</SheetTitle>}
       <SidebarHeader>
         <div className="flex justify-between items-center px-2">
           <div className="flex items-center space-x-2 w-full">
@@ -45,6 +52,17 @@ export function AppSidebar() {
               <p className="text-xs">v1.0</p>
             </div>
           </div>
+          {isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setOpenMobile(false)}
+              aria-label="Close sidebar"
+            >
+              <X className="h-8 w-8" />
+            </Button>
+          )}
         </div>
       </SidebarHeader>
       <SidebarContent>
