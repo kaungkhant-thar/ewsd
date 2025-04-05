@@ -143,7 +143,7 @@ export default function IdeaFormPage() {
   }, [filePreviews]);
 
   const renderFileUploadSection = () => (
-    <div className="flex space-x-4 justify-end">
+    <div className="max-lg:space-y-2 lg:flex lg:space-x-4 justify-end">
       <label
         htmlFor="files"
         className="text-sm font-medium text-gray-900 w-36 text-right"
@@ -250,9 +250,9 @@ export default function IdeaFormPage() {
         Add your idea details here. Click save when you're done.
       </div>
 
-      <div className="border border-[#E4E4E7] rounded-lg shadow-sm p-6 flex justify-end">
+      <div className="border border-[#E4E4E7] rounded-lg shadow-sm p-4 lg:p-6 flex justify-end">
         <form onSubmit={handleSubmit} className="space-y-6 w-full">
-          <div className="flex space-x-4 justify-end">
+          <div className="max-lg:space-y-2 lg:flex lg:space-x-4 justify-end">
             <label
               htmlFor="title"
               className="text-sm font-medium text-gray-900 w-36 text-right mt-2.5"
@@ -274,7 +274,7 @@ export default function IdeaFormPage() {
             />
           </div>
 
-          <div className="flex space-x-4 justify-end">
+          <div className="max-lg:space-y-2 lg:flex lg:space-x-4 justify-end">
             <label
               htmlFor="content"
               className="text-sm font-medium text-gray-900 w-36 text-right mt-2.5"
@@ -293,7 +293,7 @@ export default function IdeaFormPage() {
             />
           </div>
 
-          <div className="flex space-x-4 justify-end">
+          <div className="max-lg:space-y-2 lg:flex lg:space-x-4 justify-end">
             <label
               htmlFor="category"
               className="text-sm font-medium text-gray-900 w-36 text-right mt-2.5"
@@ -336,7 +336,7 @@ export default function IdeaFormPage() {
 
           {isNew && renderFileUploadSection()}
 
-          <div className="flex space-x-4 justify-end items-center">
+          <div className="max-lg:space-y-2 lg:flex lg:space-x-4 justify-end items-center">
             <Label
               htmlFor="isAnonymous"
               className="text-sm font-medium text-gray-900 w-36 text-right"
