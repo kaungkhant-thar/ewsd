@@ -1,5 +1,14 @@
-import CategoryIcon from '@/icons/Category';
-import { LayoutGrid, ClipboardList, User, Menu, Users, Calendar, Building, Bell } from 'lucide-react';
+import CategoryIcon from "@/icons/Category";
+import {
+  LayoutGrid,
+  ClipboardList,
+  User,
+  Menu,
+  Users,
+  Calendar,
+  Building,
+  Bell,
+} from "lucide-react";
 
 type MenuItem = {
   icon: React.ReactNode;
@@ -19,133 +28,133 @@ type RoleMenuConfig = {
 export const menuConfig: RoleMenuConfig = {
   admin: [
     {
-      title: 'Overview',
+      title: "Overview",
       items: [
         {
           icon: <LayoutGrid className="size-4" />,
-          text: 'Dashboard',
-          href: '/system-report',
+          text: "Dashboard",
+          href: "/dashboard",
         },
       ],
     },
     {
-      title: 'Features',
+      title: "Features",
       items: [
         {
           icon: <ClipboardList className="size-4" />,
-          text: 'Ideas',
-          href: '/ideas',
+          text: "Ideas",
+          href: "/ideas",
         },
         {
           icon: <User className="size-4" />,
-          text: 'Staff',
-          href: '/staff',
+          text: "Staff",
+          href: "/staff",
         },
         {
           icon: <Users className="size-4" />,
-          text: 'Staff Role',
-          href: '/staff-role',
+          text: "Staff Role",
+          href: "/staff-role",
         },
         {
           icon: <Calendar className="size-4" />,
-          text: 'Academic Year',
-          href: '/academic-year',
+          text: "Academic Year",
+          href: "/academic-year",
         },
         {
           icon: <Building className="size-4" />,
-          text: 'Department',
-          href: '/department',
+          text: "Department",
+          href: "/department",
         },
       ],
     },
   ],
   manager: [
     {
-      title: 'Overview',
+      title: "Overview",
       items: [
         {
           icon: <LayoutGrid className="size-4" />,
-          text: 'Dashboard',
-          href: '/system-report',
+          text: "Dashboard",
+          href: "/dashboard",
         },
       ],
     },
     {
-      title: 'Features',
+      title: "Features",
       items: [
         {
           icon: <ClipboardList className="size-4" />,
-          text: 'Ideas',
-          href: '/ideas',
+          text: "Ideas",
+          href: "/ideas",
         },
         {
           icon: <CategoryIcon className="size-4" />,
-          text: 'Category',
-          href: '/category',
+          text: "Category",
+          href: "/category",
         },
         {
           icon: <Users className="size-4" />,
-          text: 'Reported Ideas',
-          href: '/reported-ideas',
+          text: "Reported Ideas",
+          href: "/reported-ideas",
         },
         {
           icon: <Calendar className="size-4" />,
-          text: 'Academic Year',
-          href: '/academic-year',
+          text: "Academic Year",
+          href: "/academic-year",
         },
       ],
     },
   ],
   coordinator: [
     {
-      title: 'Overview',
+      title: "Overview",
       items: [
         {
           icon: <LayoutGrid className="size-4" />,
-          text: 'Dashboard',
-          href: '/system-report',
+          text: "Dashboard",
+          href: "/dashboard",
         },
       ],
     },
     {
-      title: 'Features',
+      title: "Features",
       items: [
         {
           icon: <ClipboardList className="size-4" />,
-          text: 'Ideas',
-          href: '/ideas',
+          text: "Ideas",
+          href: "/ideas",
         },
         {
           icon: <Bell className="size-4" />,
-          text: 'Announcement',
-          href: '/announcement',
+          text: "Announcement",
+          href: "/announcement",
         },
       ],
     },
   ],
   staff: [
     {
-      title: 'Overview',
+      title: "Overview",
       items: [
         {
           icon: <LayoutGrid className="size-4" />,
-          text: 'Dashboard',
-          href: '/system-report',
+          text: "Dashboard",
+          href: "/dashboard",
         },
       ],
     },
     {
-      title: 'Features',
+      title: "Features",
       items: [
         {
           icon: <ClipboardList className="size-4" />,
-          text: 'Ideas',
-          href: '/ideas',
+          text: "Ideas",
+          href: "/ideas",
         },
         {
           icon: <ClipboardList className="size-4" />,
-          text: 'Submitted Ideas',
-          href: '/submitted-ideas',
+          text: "Submitted Ideas",
+          href: "/submitted-ideas",
         },
       ],
     },
