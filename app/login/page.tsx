@@ -44,8 +44,8 @@ export default function LoginPage() {
     mutationFn: loginUser,
     onSuccess: (response: LoginResponse) => {
       toast.success("Login successful");
-      // push to /system-report page
-      router.push("/system-report");
+      // push to /dashboard page
+      router.push("/dashboard");
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to login");
