@@ -1,5 +1,5 @@
-import { api } from "@/lib/api";
-import { AxiosResponse } from "axios";
+import { api } from '@/lib/api';
+import { AxiosResponse } from 'axios';
 
 export interface IdeaDocument {
   id: number;
@@ -109,46 +109,56 @@ export interface IdeaDetail {
 }
 
 export const ideaApi = {
-  fetchIdeas: async (sortBy: string, categoryId: string, keyword: string, page: number = 1): Promise<IdeaListResponse> =>
+  fetchIdeas: async (
+    sortBy: string,
+    categoryId: string,
+    keyword: string,
+    page: number = 1
+  ): Promise<IdeaListResponse> =>
     api
-      .get<AxiosResponse<IdeaListResponse>>("/get/ideas", { 
-        params: { 
+      .get<AxiosResponse<IdeaListResponse>>('/get/ideas', {
+        params: {
           sortBy,
           categoryId,
           keyword,
-          page 
-        } 
+          page,
+        },
       })
       .then((res) => res.data.data),
 
-  fetchIdeasByUserId: async (userId: number, sortBy: string, categoryId: string, keyword: string, page: number = 1): Promise<IdeaListResponse> =>
+  fetchIdeasByUserId: async (
+    userId: number,
+    sortBy: string,
+    categoryId: string,
+    keyword: string,
+    page: number = 1
+  ): Promise<IdeaListResponse> =>
     api
-      .get<AxiosResponse<IdeaListResponse>>(`/get/ideas/user/${userId}`, { 
-        params: { 
+      .get<AxiosResponse<IdeaListResponse>>(`/get/ideas/user/${userId}`, {
+        params: {
           sortBy,
           categoryId,
           keyword,
-          page 
-        } 
+          page,
+        },
       })
       .then((res) => res.data.data),
 
-  fetchIdea: async (id: string): Promise<Idea> =>
-    api.get(`/get/idea/${id}`).then((res) => res.data.data),
+  fetchIdea: async (id: string): Promise<Idea> => api.get(`/get/idea/${id}`).then((res) => res.data.data),
 
   createIdea: async (data: IdeaFormData) => {
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
       if (key === 'files' && value) {
-        Array.from(value).forEach(file => {
+        Array.from(value).forEach((file) => {
           formData.append('files[]', file as never);
         });
       } else if (value !== undefined) {
         formData.append(key, String(value));
       }
     });
-    return api.post("/submit/idea", formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+    return api.post('/submit/idea', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
 
@@ -164,7 +174,7 @@ export const ideaApi = {
 
   increaseViewCount: async (id: number) => {
     const response = await api.post(`/view/idea/${id}`);
-    
+
     return response.data;
   },
 
@@ -177,12 +187,12 @@ export const ideaApi = {
     const { data } = await api.get<AxiosResponse<IdeaDetail>>(`/get/idea/${id}/details`);
     return data.data;
   },
-  
+
   submitComment: async (ideaId: number, content: string, userId: number, isAnonymous: boolean = false) => {
     const { data } = await api.post(`/add/ideas/${ideaId}/comment`, {
-      desc:content,
+      desc: content,
       userId,
-      isAnonymous
+      isAnonymous,
     });
     return data;
   },
@@ -190,30 +200,21 @@ export const ideaApi = {
 
 export const categoryApi = {
   fetchCategories: async (): Promise<Category[]> =>
-    api
-      .get<AxiosResponse<Category[]>>("/get/categories")
-      .then((res) => res.data.data),
+    api.get<AxiosResponse<Category[]>>('/get/categories').then((res) => res.data.data),
 
   fetchCategory: async (id: number): Promise<Category> =>
-    api
-      .get<AxiosResponse<Category>>(`/get/category/${id}`)
-      .then((res) => res.data.data),
+    api.get<AxiosResponse<Category>>(`/get/category/${id}`).then((res) => res.data.data),
 
-  createCategory: async (data: { categoryName: string; remark?: string | null }) =>
-    api.post("/create/category", data),
+  createCategory: async (data: { categoryName: string; remark?: string | null }) => api.post('/create/category', data),
 
   updateCategory: async (id: number, data: { categoryName: string; remark?: string | null }) =>
     api.put(`/update/category/${id}`, data),
 
-  deleteCategory: async (id: number) =>
-    api.delete(`/delete/category/${id}`),
+  deleteCategory: async (id: number) => api.delete(`/delete/category/${id}`),
 };
 
 export const userApi = {
-  getCurrentUser: async (): Promise<User> =>
-    api
-      .get<AxiosResponse<User>>("/user")
-      .then((res) => res.data.data),
+  getCurrentUser: async (): Promise<User> => api.get<AxiosResponse<User>>('/user').then((res) => res.data.data),
 };
 
 export const academicYearApi = {
@@ -226,6 +227,6 @@ export const academicYearApi = {
       const now = new Date();
       return now >= startDate && now <= endDate;
     });
-    return currentAY;
-  }
+    return currentAY ?? null;
+  },
 };

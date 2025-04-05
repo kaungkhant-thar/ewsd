@@ -23,7 +23,7 @@ export const menuConfig: RoleMenuConfig = {
       items: [
         {
           icon: <LayoutGrid className="size-4" />,
-          text: 'System Report',
+          text: 'Dashboard',
           href: '/system-report',
         },
       ],
@@ -65,7 +65,7 @@ export const menuConfig: RoleMenuConfig = {
       items: [
         {
           icon: <LayoutGrid className="size-4" />,
-          text: 'System Report',
+          text: 'Dashboard',
           href: '/system-report',
         },
       ],
@@ -102,7 +102,7 @@ export const menuConfig: RoleMenuConfig = {
       items: [
         {
           icon: <LayoutGrid className="size-4" />,
-          text: 'System Report',
+          text: 'Dashboard',
           href: '/system-report',
         },
       ],
@@ -129,7 +129,7 @@ export const menuConfig: RoleMenuConfig = {
       items: [
         {
           icon: <LayoutGrid className="size-4" />,
-          text: 'System Report',
+          text: 'Dashboard',
           href: '/system-report',
         },
       ],

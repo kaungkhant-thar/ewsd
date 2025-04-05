@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { UserCircle } from 'lucide-react';
+import { Loader2, UserCircle } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -53,36 +53,40 @@ export default function RoleFormPage() {
   };
 
   if (!isNew && isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
   }
 
   return (
-    <main className="flex-1 bg-gray-50 overflow-auto">
-      <div className="p-4 md:p-8">
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-primary-teal rounded-lg flex items-center justify-center">
-              <UserCircle className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <div className="text-sm text-gray-500">Staff Role /</div>
-              <h2 className="text-xl md:text-2xl font-semibold text-gray-900">
-                {isNew ? 'New Role' : formData.roleName}
-              </h2>
-            </div>
+    <main className="flex-1 overflow-auto">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-primary-teal rounded-lg flex items-center justify-center">
+            <UserCircle className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <div className="text-sm text-[#3173ED]">Staff Role /</div>
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900">
+              {isNew ? 'New Role' : formData.roleName}
+            </h2>
           </div>
         </div>
+      </div>
 
-        <div className="text-sm text-gray-500 mb-6">
-          {isNew ? 'Add a new staff role' : 'Edit staff role details'}. Click save when you're done.
-        </div>
+      <div className="text-sm text-gray-500 mb-8 font-medium">
+        {isNew ? 'Add a new staff role' : 'Edit staff role details'}. Click save when you're done.
+      </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-6 flex justify-end">
-          <form onSubmit={handleSubmit} className="space-y-6 max-w-[40rem] w-full">
-            <div className="grid gap-2">
-              <label htmlFor="roleName" className="text-sm font-medium text-gray-900">
-                Role name
-              </label>
+      <div className="border border-[#E4E4E7] rounded-lg shadow-sm p-4 sm:p-6">
+        <form onSubmit={handleSubmit} className="space-y-6 w-full">
+          <div className="flex flex-col sm:flex-row sm:space-x-4 sm:justify-end gap-2 sm:gap-0">
+            <label htmlFor="roleName" className="text-sm font-medium text-gray-900 sm:w-40 sm:text-right">
+              Role name
+            </label>
+            <div className="w-full sm:max-w-[50rem]">
               <Input
                 id="roleName"
                 disabled
@@ -93,11 +97,13 @@ export default function RoleFormPage() {
               />
               <span className="text-xs text-gray-500">Role name cannot be changed.</span>
             </div>
+          </div>
 
-            <div className="grid gap-2">
-              <label htmlFor="remark" className="text-sm font-medium text-gray-900">
-                Remark
-              </label>
+          <div className="flex flex-col sm:flex-row sm:space-x-4 sm:justify-end gap-2 sm:gap-0">
+            <label htmlFor="remark" className="text-sm font-medium text-gray-900 sm:w-40 sm:text-right">
+              Remark
+            </label>
+            <div className="w-full sm:max-w-[50rem]">
               <Textarea
                 id="remark"
                 value={formData.remark || ''}
@@ -105,17 +111,26 @@ export default function RoleFormPage() {
                 className="min-h-[150px] w-full"
               />
             </div>
+          </div>
 
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => router.push('/staff-role')}>
-                Cancel
-              </Button>
-              <Button type="submit" className="bg-primary-teal hover:bg-primary-teal/90" disabled={mutation.isPending}>
-                {mutation.isPending ? 'Saving...' : 'Save changes'}
-              </Button>
-            </div>
-          </form>
-        </div>
+          <div className="flex flex-col sm:flex-row justify-end gap-2 sm:space-x-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.push('/staff-role')}
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              className="bg-primary-teal hover:bg-primary-teal/90 w-full sm:w-auto"
+              disabled={mutation.isPending}
+            >
+              {mutation.isPending ? 'Saving...' : 'Save changes'}
+            </Button>
+          </div>
+        </form>
       </div>
     </main>
   );

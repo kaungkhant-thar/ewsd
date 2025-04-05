@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Calendar, Download, FileDown } from 'lucide-react';
+import { Calendar, Download, FileDown, Loader2 } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -150,14 +150,18 @@ export default function AcademicYearFormPage() {
   }
 
   if (!isNew && isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
   }
 
   const ableToDownload = ['past', 'final_closed'].includes(academicYear?.status || '');
 
   return (
     <main className="flex-1 overflow-auto">
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-4">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-primary-teal rounded-lg flex items-center justify-center">
             <Calendar className="h-6 w-6 text-white" />
@@ -179,7 +183,7 @@ export default function AcademicYearFormPage() {
       )}
 
       {!isNew && !readOnly && (
-        <div className="flex gap-3 mb-6">
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <Button
             variant="outline"
             onClick={() => academicYearApi.downloadIdeasCsv(academicYear as AcademicYear)}
@@ -207,18 +211,18 @@ export default function AcademicYearFormPage() {
         </div>
       )}
 
-      <div className="border border-[#E4E4E7] rounded-lg shadow-sm p-6">
+      <div className="border border-[#E4E4E7] rounded-lg shadow-sm p-4 sm:p-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
             <FormField
               control={form.control}
               name="academicName"
               render={({ field }) => (
-                <div className="flex space-x-4 justify-end">
-                  <FormLabel className="text-sm font-medium text-gray-900 w-40 text-right mt-2.5">
+                <div className="flex flex-col sm:flex-row sm:space-x-4 sm:justify-end gap-2 sm:gap-0">
+                  <FormLabel className="text-sm font-medium text-gray-900 sm:w-40 sm:text-right">
                     Academic name*
                   </FormLabel>
-                  <div className="w-full max-w-[50rem]">
+                  <div className="w-full sm:max-w-[50rem]">
                     <FormControl>
                       <Input {...field} className="w-full" />
                     </FormControl>
@@ -232,11 +236,9 @@ export default function AcademicYearFormPage() {
               control={form.control}
               name="startDate"
               render={({ field }) => (
-                <div className="flex space-x-4 justify-end">
-                  <FormLabel className="text-sm font-medium text-gray-900 w-40 text-right mt-2.5">
-                    Start date*
-                  </FormLabel>
-                  <div className="w-full max-w-[50rem]">
+                <div className="flex flex-col sm:flex-row sm:space-x-4 sm:justify-end gap-2 sm:gap-0">
+                  <FormLabel className="text-sm font-medium text-gray-900 sm:w-40 sm:text-right">Start date*</FormLabel>
+                  <div className="w-full sm:max-w-[50rem]">
                     <FormControl>
                       <Input type="date" {...field} className="w-full" />
                     </FormControl>
@@ -250,9 +252,9 @@ export default function AcademicYearFormPage() {
               control={form.control}
               name="endDate"
               render={({ field }) => (
-                <div className="flex space-x-4 justify-end">
-                  <FormLabel className="text-sm font-medium text-gray-900 w-40 text-right mt-2.5">End date*</FormLabel>
-                  <div className="w-full max-w-[50rem]">
+                <div className="flex flex-col sm:flex-row sm:space-x-4 sm:justify-end gap-2 sm:gap-0">
+                  <FormLabel className="text-sm font-medium text-gray-900 sm:w-40 sm:text-right">End date*</FormLabel>
+                  <div className="w-full sm:max-w-[50rem]">
                     <FormControl>
                       <Input type="date" {...field} className="w-full" />
                     </FormControl>
@@ -266,11 +268,11 @@ export default function AcademicYearFormPage() {
               control={form.control}
               name="closureDate"
               render={({ field }) => (
-                <div className="flex space-x-4 justify-end">
-                  <FormLabel className="text-sm font-medium text-gray-900 w-40 text-right mt-2.5">
+                <div className="flex flex-col sm:flex-row sm:space-x-4 sm:justify-end gap-2 sm:gap-0">
+                  <FormLabel className="text-sm font-medium text-gray-900 sm:w-40 sm:text-right">
                     Closure date*
                   </FormLabel>
-                  <div className="w-full max-w-[50rem]">
+                  <div className="w-full sm:max-w-[50rem]">
                     <FormControl>
                       <Input type="date" {...field} className="w-full" />
                     </FormControl>
@@ -284,11 +286,11 @@ export default function AcademicYearFormPage() {
               control={form.control}
               name="finalClosureDate"
               render={({ field }) => (
-                <div className="flex space-x-4 justify-end">
-                  <FormLabel className="text-sm font-medium text-gray-900 w-40 text-right mt-2.5">
+                <div className="flex flex-col sm:flex-row sm:space-x-4 sm:justify-end gap-2 sm:gap-0">
+                  <FormLabel className="text-sm font-medium text-gray-900 sm:w-40 sm:text-right">
                     Final closure date*
                   </FormLabel>
-                  <div className="w-full max-w-[50rem]">
+                  <div className="w-full sm:max-w-[50rem]">
                     <FormControl>
                       <Input type="date" {...field} className="w-full" />
                     </FormControl>
@@ -302,9 +304,9 @@ export default function AcademicYearFormPage() {
               control={form.control}
               name="remark"
               render={({ field }) => (
-                <div className="flex space-x-4 justify-end">
-                  <FormLabel className="text-sm font-medium text-gray-900 w-40 text-right mt-2.5">Remark</FormLabel>
-                  <div className="w-full max-w-[50rem]">
+                <div className="flex flex-col sm:flex-row sm:space-x-4 sm:justify-end gap-2 sm:gap-0">
+                  <FormLabel className="text-sm font-medium text-gray-900 sm:w-40 sm:text-right">Remark</FormLabel>
+                  <div className="w-full sm:max-w-[50rem]">
                     <FormControl>
                       <Textarea {...field} value={field.value || ''} className="min-h-[150px] w-full" />
                     </FormControl>
@@ -314,19 +316,22 @@ export default function AcademicYearFormPage() {
               )}
             />
 
-            <div className="flex justify-end space-x-4">
-              <Button type="button" variant="outline" onClick={() => router.push('/academic-year')}>
+            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:space-x-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.push('/academic-year')}
+                className="w-full sm:w-auto"
+              >
                 Cancel
               </Button>
-              {!readOnly && (
-                <Button
-                  type="submit"
-                  className="bg-primary-teal hover:bg-primary-teal/90"
-                  disabled={mutation.isPending}
-                >
-                  {mutation.isPending ? 'Saving...' : 'Save changes'}
-                </Button>
-              )}
+              <Button
+                type="submit"
+                className="bg-primary-teal hover:bg-primary-teal/90 w-full sm:w-auto"
+                disabled={mutation.isPending || readOnly}
+              >
+                {mutation.isPending ? 'Saving...' : 'Save changes'}
+              </Button>
             </div>
           </form>
         </Form>
