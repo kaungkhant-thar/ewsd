@@ -231,12 +231,38 @@ export const QaSystemReport = ({
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={ideasByDepart}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                      <XAxis
+                        dataKey="name"
+                        tick={({ x, y, payload }) => {
+                          const words = payload.value.split(" ");
+                          return (
+                            <text
+                              x={x}
+                              y={y + 10}
+                              textAnchor="middle"
+                              fontSize={12}
+                              fill="#666"
+                            >
+                              {words.map((word, index) => (
+                                <tspan
+                                  key={index}
+                                  x={x}
+                                  dy={index === 0 ? 0 : 14}
+                                >
+                                  {word}
+                                </tspan>
+                              ))}
+                            </text>
+                          );
+                        }}
+                        interval={0}
+                      />
                       <YAxis tick={{ fontSize: 10 }} />
                       <Bar
                         dataKey="value"
                         fill="#8884d8"
                         radius={[4, 4, 0, 0]}
+                        barSize={40}
                       />
                     </BarChart>
                   </ResponsiveContainer>
@@ -251,12 +277,38 @@ export const QaSystemReport = ({
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={contributors}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                      <XAxis
+                        dataKey="name"
+                        tick={({ x, y, payload }) => {
+                          const words = payload.value.split(" ");
+                          return (
+                            <text
+                              x={x}
+                              y={y + 10}
+                              textAnchor="middle"
+                              fontSize={12}
+                              fill="#666"
+                            >
+                              {words.map((word, index) => (
+                                <tspan
+                                  key={index}
+                                  x={x}
+                                  dy={index === 0 ? 0 : 14}
+                                >
+                                  {word}
+                                </tspan>
+                              ))}
+                            </text>
+                          );
+                        }}
+                        interval={0}
+                      />
                       <YAxis tick={{ fontSize: 10 }} />
                       <Bar
                         dataKey="value"
                         fill="#8884d8"
                         radius={[4, 4, 0, 0]}
+                        barSize={40}
                       />
                     </BarChart>
                   </ResponsiveContainer>
