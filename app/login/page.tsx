@@ -43,9 +43,10 @@ export default function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: loginUser,
     onSuccess: (response: LoginResponse) => {
+      console.log({ response });
       toast.success("Login successful");
-      // push to /dashboard page
-      router.push("/dashboard");
+
+      router.push("/ideas");
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to login");
