@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Eye,
   FileText,
   Loader2,
   MessageCircle,
@@ -26,17 +25,12 @@ import {
 } from "recharts";
 import { academicYearApi } from "../academic-year/api";
 import { systemReportApi } from "./api";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { formatDate } from "@/lib/utils";
 
-export const QAManagerSystemReport = () => {
+export const QaSystemReport = ({
+  isManager = false,
+}: {
+  isManager: boolean;
+}) => {
   const [academicYear, setAcademicYear] = useState<string | undefined>(
     undefined
   );
@@ -226,7 +220,7 @@ export const QAManagerSystemReport = () => {
           </div>
         )}
 
-        {!!ideasByDeptData?.totalIdeas && (
+        {!!ideasByDeptData?.totalIdeas && isManager && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div className="border  border-input rounded-md p-6">
@@ -238,10 +232,7 @@ export const QAManagerSystemReport = () => {
                     <BarChart data={ideasByDepart}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
                       <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                      <YAxis
-                        tick={{ fontSize: 10 }}
-                        ticks={[0, 20, 40, 60, 80, 100]}
-                      />
+                      <YAxis tick={{ fontSize: 10 }} />
                       <Bar
                         dataKey="value"
                         fill="#8884d8"
@@ -261,10 +252,7 @@ export const QAManagerSystemReport = () => {
                     <BarChart data={contributors}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
                       <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                      <YAxis
-                        tick={{ fontSize: 10 }}
-                        ticks={[0, 20, 40, 60, 80, 100]}
-                      />
+                      <YAxis tick={{ fontSize: 10 }} />
                       <Bar
                         dataKey="value"
                         fill="#8884d8"

@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { AxiosResponse } from "axios";
+import { Axios, AxiosResponse } from "axios";
 
 type TopUser = {
   userId: number;
@@ -41,6 +41,14 @@ export type ContributorsByDepartment = {
 export type AnnonymousCounts = {
   anonymousIdeaCount: number;
   anonymousCommentCount: number;
+};
+
+export type MostUsedBrowsers = {
+  message: string;
+  logs: Array<{
+    browser: string;
+    count: number;
+  }>;
 };
 
 export type Ideas = Array<{
@@ -95,4 +103,7 @@ export const systemReportApi = {
     api
       .get<AxiosResponse<Ideas>>(`/getMostViewedIdeas/${academicYear}`)
       .then((res) => res.data.data),
+
+  fetchMostUsedBrowsers: async () =>
+    api.get<MostUsedBrowsers>("/logged-in-browsers").then((res) => res.data),
 };

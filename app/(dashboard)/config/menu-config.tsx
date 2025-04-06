@@ -134,16 +134,6 @@ export const menuConfig: RoleMenuConfig = {
   ],
   staff: [
     {
-      title: "Overview",
-      items: [
-        {
-          icon: <LayoutGrid className="size-4" />,
-          text: "Dashboard",
-          href: "/dashboard",
-        },
-      ],
-    },
-    {
       title: "Features",
       items: [
         {

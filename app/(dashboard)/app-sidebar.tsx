@@ -1,5 +1,5 @@
-'use client';
-import Logo from '@/components/ui/logo';
+"use client";
+import Logo from "@/components/ui/logo";
 import {
   Sidebar,
   SidebarContent,
@@ -13,20 +13,21 @@ import {
   SidebarMenuItem,
   SidebarRail,
   useSidebar,
-} from '@/components/ui/sidebar';
-import { SheetTitle } from '@/components/ui/sheet';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { NavUser } from './nav-user';
-import { menuConfig } from './config/menu-config';
-import { staffApi } from './staff/api';
-import { useQuery } from '@tanstack/react-query';
-import { X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/sidebar";
+import { SheetTitle } from "@/components/ui/sheet";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { NavUser } from "./nav-user";
+import { menuConfig } from "./config/menu-config";
+import { staffApi } from "./staff/api";
+import { useQuery } from "@tanstack/react-query";
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { formatDate } from "@/lib/utils";
 
 export const useCurrentUser = () => {
   const { data: user } = useQuery({
-    queryKey: ['user'],
+    queryKey: ["user"],
     queryFn: staffApi.fetchLoggedInUser,
   });
   return user;
@@ -40,7 +41,11 @@ export function AppSidebar() {
   const menuSections = user ? menuConfig[user.roleName] : [];
 
   return (
-    <Sidebar className="py-2 h-screen" collapsible={isMobile ? 'offcanvas' : 'none'} aria-label="Main navigation">
+    <Sidebar
+      className="py-2 h-screen"
+      collapsible={isMobile ? "offcanvas" : "none"}
+      aria-label="Main navigation"
+    >
       {!isMobile && <SidebarRail />}
       {isMobile && <SheetTitle className="sr-only">Navigation Menu</SheetTitle>}
       <SidebarHeader>
@@ -87,12 +92,13 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
       <SidebarFooter>
+        <p className="text-sm border-b py-4 px-2">{user?.message}</p>
         {user && (
           <NavUser
             user={{
               name: user.userName,
               email: user.email,
-              avatar: '',
+              avatar: "",
             }}
           />
         )}

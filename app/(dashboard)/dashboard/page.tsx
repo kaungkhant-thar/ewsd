@@ -5,12 +5,12 @@ import { AdminSystemReport } from "./AdminSystemReport";
 import { useCurrentUser } from "../app-sidebar";
 import { Loader2 } from "lucide-react";
 import { StaffRoleName } from "../staff/api";
-import { QAManagerSystemReport } from "./QaManagerSystemReport";
+import { QaSystemReport } from "./QaSystemReport";
 
 const reports: Record<StaffRoleName, React.ReactNode> = {
   admin: <AdminSystemReport />,
-  manager: <QAManagerSystemReport />,
-  coordinator: <AdminSystemReport />,
+  manager: <QaSystemReport isManager />,
+  coordinator: <QaSystemReport />,
   staff: "staff",
 };
 const Page = () => {

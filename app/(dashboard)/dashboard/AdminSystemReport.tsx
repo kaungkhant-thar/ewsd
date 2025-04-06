@@ -18,9 +18,8 @@ import {
   YAxis,
 } from "recharts";
 import { academicYearApi } from "../academic-year/api";
-import { IdeasByDepartmentPieChart } from "./IdeasByDepartmentPieChart";
 import { systemReportApi } from "./api";
-import { MostUsedBrowserPieChart } from "./MostUsedBrowsers";
+import { PieChartCard } from "./PieChart";
 
 export const AdminSystemReport = () => {
   const [academicYear, setAcademicYear] = useState<string | undefined>(
@@ -62,10 +61,20 @@ export const AdminSystemReport = () => {
     value: dept.ideaCount,
   }));
 
+  const { data: mostUsedBrowsers, isLoading: isMostUsedBrowsersLoading } =
+    useQuery({
+      queryKey: ["mostUserdBrowsers"],
+      queryFn: () => systemReportApi.fetchMostUsedBrowsers(),
+    });
+
+  const totalBrowsers =
+    mostUsedBrowsers?.logs.reduce((sum, b) => sum + b.count, 0) || 0;
+
   if (
     isAcademicYearsLoading ||
     isCardsDataLoading ||
-    isIdeasByDeptDataLoading
+    isIdeasByDeptDataLoading ||
+    isMostUsedBrowsersLoading
   ) {
     return (
       <div className="flex items-center justify-center h-[400px]">
@@ -130,8 +139,33 @@ export const AdminSystemReport = () => {
         {!!ideasByDeptData?.totalIdeas && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <IdeasByDepartmentPieChart chartData={ideasByDeptData} />
-              <MostUsedBrowserPieChart chartData={ideasByDeptData} />
+              <PieChartCard
+                title="Percentages of ideas by each Department"
+                data={ideasByDeptData.data.map((dept) => ({
+                  label: dept.departmentName,
+                  value: dept.ideaCount,
+                  percent: dept.percentage,
+                }))}
+                totalValue={ideasByDeptData.totalIdeas}
+                totalLabel="visitors"
+              />
+
+              <PieChartCard
+                title="Most used browsers"
+                data={(mostUsedBrowsers?.logs || []).map((browser) => {
+                  const percent =
+                    totalBrowsers > 0
+                      ? Math.round((browser.count / totalBrowsers) * 100)
+                      : 0;
+                  return {
+                    label: browser.browser,
+                    value: browser.count,
+                    percent,
+                  };
+                })}
+                totalLabel="logins"
+                totalValue={totalBrowsers}
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">

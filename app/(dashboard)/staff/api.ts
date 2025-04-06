@@ -1,5 +1,5 @@
-import { api } from '@/lib/api';
-import type { AxiosResponse } from 'axios';
+import { api } from "@/lib/api";
+import type { AxiosResponse } from "axios";
 
 export type Staff = {
   id: number;
@@ -13,7 +13,7 @@ export type Staff = {
   updatedAt: string;
 };
 
-export type StaffRoleName = 'admin' | 'staff' | 'manager' | 'coordinator';
+export type StaffRoleName = "admin" | "staff" | "manager" | "coordinator";
 
 export type StaffFormData = {
   userName: string;
@@ -25,22 +25,34 @@ export type StaffFormData = {
   remark: string | null;
 };
 
-export type StaffUpdateFormData = Omit<StaffFormData, 'password'>;
+export type StaffUpdateFormData = Omit<StaffFormData, "password">;
 
 export const staffApi = {
-  fetchLoggedInUser: async (): Promise<Staff & { roleName: StaffRoleName }> =>
-    api.get('/user').then((res) => res.data.data),
+  fetchLoggedInUser: async (): Promise<
+    Staff & { roleName: StaffRoleName; message: string; lastLogin: string }
+  > => api.get("/user").then((res) => res.data.data),
 
-  fetchStaffs: async (): Promise<Staff[]> => api.get<AxiosResponse<Staff[]>>('/readUsers').then((res) => res.data.data),
+  fetchStaffs: async (): Promise<Staff[]> =>
+    api.get<AxiosResponse<Staff[]>>("/readUsers").then((res) => res.data.data),
 
-  fetchStaff: async (id: string): Promise<Staff> => api.get(`/readUserById/${id}`).then((res) => res.data.data),
+  fetchStaff: async (id: string): Promise<Staff> =>
+    api.get(`/readUserById/${id}`).then((res) => res.data.data),
 
-  createStaff: async (data: StaffFormData) => api.post('/createUser', data),
+  createStaff: async (data: StaffFormData) => api.post("/createUser", data),
 
-  updateStaff: async ({ id, data }: { id: string; data: StaffUpdateFormData }) =>
-    api.post('/updateUser', { ...data, id }),
+  updateStaff: async ({
+    id,
+    data,
+  }: {
+    id: string;
+    data: StaffUpdateFormData;
+  }) => api.post("/updateUser", { ...data, id }),
 
   deleteStaff: async (id: number) => api.post(`/deleteUser/${id}`),
 
-  getCurrentUser: async (): Promise<Staff> => api.get('/user').then((res) => res.data.data),
+  getCurrentUser: async (): Promise<Staff> =>
+    api.get("/user").then((res) => res.data.data),
+
+  fetchLastLoggedIn: async () =>
+    api.get(`/getLastLoginUser`).then((res) => res.data.data),
 };
