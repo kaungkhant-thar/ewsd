@@ -16,7 +16,7 @@ type Props = {
   chartData: ChartsData;
 };
 
-export function SystemReportPie({ chartData }: Props) {
+export function MostUsedBrowserPieChart({ chartData }: Props) {
   const charts = chartData.data.map((dept, index) => ({
     label: dept.departmentName,
     value: dept.ideaCount,
@@ -31,13 +31,12 @@ export function SystemReportPie({ chartData }: Props) {
     };
     return acc;
   }, {} as ChartConfig);
-  console.log({ config, charts });
 
   return (
     <Card className="flex flex-col">
       <CardHeader className=" pb-0">
         <CardTitle className="text-base font-semibold">
-          Percentages of ideas by each Department
+          Most used browsers
         </CardTitle>
       </CardHeader>
       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
