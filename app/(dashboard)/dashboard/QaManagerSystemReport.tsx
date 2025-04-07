@@ -13,6 +13,7 @@ import {
   MessageCircle,
   ThumbsDown,
   ThumbsUp,
+  Eye,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
@@ -25,12 +26,23 @@ import {
 } from "recharts";
 import { academicYearApi } from "../academic-year/api";
 import { systemReportApi } from "./api";
+import { PieChartCard } from "./PieChart";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
-export const QaSystemReport = ({
-  isManager = false,
-}: {
-  isManager: boolean;
-}) => {
+export const QaManagerSystemReport = () => {
+  const router = useRouter();
   const [academicYear, setAcademicYear] = useState<string | undefined>(
     undefined
   );
@@ -51,6 +63,15 @@ export const QaSystemReport = ({
     queryFn: () => systemReportApi.fetchTopUsers(academicYear || ""),
     enabled: !!academicYear,
   });
+
+  const { data: mostUsedBrowsers, isLoading: isMostUsedBrowsersLoading } =
+    useQuery({
+      queryKey: ["mostUserdBrowsers"],
+      queryFn: () => systemReportApi.fetchMostUsedBrowsers(),
+    });
+
+  const totalBrowsers =
+    mostUsedBrowsers?.logs.reduce((sum, b) => sum + b.count, 0) || 0;
 
   const { data: cardsData, isLoading: isCardsDataLoading } = useQuery({
     queryKey: ["cardsData", academicYear],
@@ -104,6 +125,10 @@ export const QaSystemReport = ({
     });
 
   console.log({ mostViewedIdeas });
+
+  const handleViewIdea = (id: number) => {
+    router.push(`/ideas/detail/${id}`);
+  };
 
   if (
     isAcademicYearsLoading ||
@@ -220,7 +245,37 @@ export const QaSystemReport = ({
           </div>
         )}
 
-        {!!ideasByDeptData?.totalIdeas && isManager && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <PieChartCard
+            title="Percentages of ideas by each Department"
+            data={
+              ideasByDeptData?.data.map((dept) => ({
+                label: dept.departmentName,
+                value: dept.ideaCount,
+                percent: dept.percentage,
+              })) || []
+            }
+            totalValue={ideasByDeptData?.totalIdeas}
+            totalLabel="visitors"
+          />
+          <PieChartCard
+            title="Most used browsers"
+            data={(mostUsedBrowsers?.logs || []).map((browser) => {
+              const percent =
+                totalBrowsers > 0
+                  ? Math.round((browser.count / totalBrowsers) * 100)
+                  : 0;
+              return {
+                label: browser.browser,
+                value: browser.count,
+                percent,
+              };
+            })}
+            totalLabel="logins"
+            totalValue={totalBrowsers}
+          />
+        </div>
+        {!!ideasByDeptData?.totalIdeas && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div className="border  border-input rounded-md p-6">
@@ -318,11 +373,12 @@ export const QaSystemReport = ({
           </>
         )}
 
-        {/* <div className="border border-input rounded-md p-6 ">
+        <div className="border border-input rounded-md p-6 ">
           <p className="text-base font-semibold mb-4">Most view ideas</p>
 
-          <div className="w-full overflow-x-auto">
-            <Table className="min-w-[1000px]">
+          {/* Table view for larger screens */}
+          <div className="hidden lg:block w-full overflow-x-auto">
+            <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Title</TableHead>
@@ -336,23 +392,104 @@ export const QaSystemReport = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mostViewedIdeas?.map((idea) => {
-                  return (
-                    <TableRow key={idea.id}>
-                      <TableCell>{idea.title}</TableCell>
-                      <TableCell>{idea.viewCount}</TableCell>
-                      <TableCell>{idea.commentCount || 0}</TableCell>
-                      <TableCell>{idea.idea}</TableCell>
-                      <TableCell></TableCell>
-                      <TableCell></TableCell>
-                      <TableCell className="max-w-28"></TableCell>
-                    </TableRow>
-                  );
-                })}
+                {mostViewedIdeas?.map((idea) => (
+                  <TableRow key={idea.id}>
+                    <TableCell className="font-medium">{idea.title}</TableCell>
+                    <TableCell>{idea.categoryId}</TableCell>
+                    <TableCell>{idea.viewCount}</TableCell>
+                    <TableCell>{idea.commentsCount || 0}</TableCell>
+                    <TableCell>{idea.totalLikes || 0}</TableCell>
+                    <TableCell>{idea.totalUnlikes || 0}</TableCell>
+                    <TableCell>
+                      {idea.isAnonymous ? "Anonymous" : idea.userName}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-primary"
+                        onClick={() => handleViewIdea(idea.id)}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        View
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </div>
-        </div> */}
+
+          {/* Card view for mobile screens */}
+          <div className="lg:hidden space-y-4">
+            {mostViewedIdeas?.map((idea) => (
+              <Card
+                key={idea.id}
+                className="bg-[#F9FBFD] border border-[#D1D9E2]"
+                onClick={() => handleViewIdea(idea.id)}
+              >
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 p-2.5 lg:px-5 lg:py-4">
+                  <div className="flex items-center space-x-3">
+                    <Badge
+                      variant="outline"
+                      className="flex items-center gap-2 py-1.5 lg:py-2 px-2 lg:px-4 bg-muted/50"
+                    >
+                      <span className="text-xs lg:text-sm font-semibold text-primary">
+                        ID: {idea.id}
+                      </span>
+                    </Badge>
+                    <div>
+                      <h3 className="text-sm lg:text-base font-semibold">
+                        {idea.title}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        By {idea.isAnonymous ? "Anonymous" : idea.userName}
+                      </p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <Separator />
+                <CardContent className="grid grid-cols-2 gap-3 p-2.5 lg:p-4 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Category</p>
+                    <p className="font-medium">{idea.categoryId}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Views</p>
+                    <div className="flex items-center gap-1.5">
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                      <p className="font-medium">{idea.viewCount}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Comments</p>
+                    <div className="flex items-center gap-1.5">
+                      <MessageCircle className="h-4 w-4 text-muted-foreground" />
+                      <p className="font-medium">{idea.commentsCount || 0}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Reactions</p>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1">
+                        <ThumbsUp className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">
+                          {idea.totalLikes || 0}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <ThumbsDown className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">
+                          {idea.totalUnlikes || 0}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
 
         {!ideasByDeptData?.totalIdeas && (
           <div className="flex items-center justify-center h-[400px]">

@@ -138,18 +138,7 @@ export const AdminSystemReport = () => {
 
         {!!ideasByDeptData?.totalIdeas && (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <PieChartCard
-                title="Percentages of ideas by each Department"
-                data={ideasByDeptData.data.map((dept) => ({
-                  label: dept.departmentName,
-                  value: dept.ideaCount,
-                  percent: dept.percentage,
-                }))}
-                totalValue={ideasByDeptData.totalIdeas}
-                totalLabel="visitors"
-              />
-
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 items-start">
               <PieChartCard
                 title="Most used browsers"
                 data={(mostUsedBrowsers?.logs || []).map((browser) => {
@@ -166,53 +155,6 @@ export const AdminSystemReport = () => {
                 totalLabel="logins"
                 totalValue={totalBrowsers}
               />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div className="border  border-input rounded-md p-6">
-                <p className="text-sm font-medium mb-4">Ideas by Department</p>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={ideasByDepart}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
-
-                      <XAxis
-                        dataKey="name"
-                        tick={({ x, y, payload }) => {
-                          const words = payload.value.split(" ");
-                          return (
-                            <text
-                              x={x}
-                              y={y + 10}
-                              textAnchor="middle"
-                              fontSize={12}
-                              fill="#666"
-                            >
-                              {words.map((word, index) => (
-                                <tspan
-                                  key={index}
-                                  x={x}
-                                  dy={index === 0 ? 0 : 14}
-                                >
-                                  {word}
-                                </tspan>
-                              ))}
-                            </text>
-                          );
-                        }}
-                        interval={0}
-                      />
-                      <YAxis tick={{ fontSize: 10 }} />
-                      <Bar
-                        dataKey="value"
-                        fill="#8884d8"
-                        radius={[4, 4, 0, 0]}
-                        barSize={40}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
               {/* User Activity Table */}
               <div className="border  border-input rounded-md p-6">
                 <div className="overflow-x-auto">
