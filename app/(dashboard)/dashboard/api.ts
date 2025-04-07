@@ -59,12 +59,38 @@ export type Ideas = Array<{
   viewCount: number;
   popularity: number;
   userId: number;
+  userName: string;
   categoryId: number;
   academicYearId: number;
   remark: string;
   createdAt: string;
   updatedAt: string;
+  totalLikes: number;
+  totalUnlikes: number;
+  commentsCount: number;
 }>;
+
+export type CoordinatorData = {
+  ideaCount: number;
+  commentCount: number;
+  upVoteCount: number;
+  downVoteCount: number;
+  ideaWithoutCommentCount: number;
+  anonymousCommentCount: number;
+  anonymousIdeaCount: number;
+
+  mostViewedIdeas: Array<{
+    id: number;
+    title: string;
+    view_count: number;
+    comment_count: number;
+    upvote_count: string;
+    downvote_count: string;
+    total_engagement: string;
+    author: string;
+  }>;
+};
+
 export const systemReportApi = {
   fetchTopUsers: async (academicYear: string) =>
     api
@@ -106,4 +132,11 @@ export const systemReportApi = {
 
   fetchMostUsedBrowsers: async () =>
     api.get<MostUsedBrowsers>("/logged-in-browsers").then((res) => res.data),
+
+  fetchCoordinatorData: async (academicYearId: string, departmentId: string) =>
+    api
+      .get<AxiosResponse<CoordinatorData>>(
+        `/getCountsByAYForQACoordinator/${academicYearId}/${departmentId}`
+      )
+      .then((res) => res.data.data),
 };
