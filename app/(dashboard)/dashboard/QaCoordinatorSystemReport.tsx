@@ -47,7 +47,11 @@ export const QaCoordinatorSystemReport = () => {
 
   useEffect(() => {
     if (!isAcademicYearsLoading && academicYears?.length) {
-      setAcademicYear((prev) => prev ?? academicYears[0].id.toString());
+      setAcademicYear(
+        (prev) =>
+          prev ??
+          academicYears.find((ay) => ay.status === "current")?.id.toString()
+      );
     }
   }, [isAcademicYearsLoading, academicYears]);
 
@@ -278,8 +282,8 @@ export const QaCoordinatorSystemReport = () => {
                     </div>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Total Engagement</p>
-                    <p className="font-medium">{idea.total_engagement}</p>
+                    <p className="text-muted-foreground">Author</p>
+                    <p className="font-medium">{idea.author}</p>
                   </div>
                 </CardContent>
               </Card>

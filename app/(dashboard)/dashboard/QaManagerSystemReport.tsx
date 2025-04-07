@@ -54,15 +54,13 @@ export const QaManagerSystemReport = () => {
 
   useEffect(() => {
     if (!isAcademicYearsLoading && academicYears?.length) {
-      setAcademicYear((prev) => prev ?? academicYears[0].id.toString());
+      setAcademicYear(
+        (prev) =>
+          prev ??
+          academicYears.find((ay) => ay.status === "current")?.id.toString()
+      );
     }
   }, [isAcademicYearsLoading, academicYears]);
-
-  const { data: topUsersData = [] } = useQuery({
-    queryKey: ["topUsers", academicYear],
-    queryFn: () => systemReportApi.fetchTopUsers(academicYear || ""),
-    enabled: !!academicYear,
-  });
 
   const { data: mostUsedBrowsers, isLoading: isMostUsedBrowsersLoading } =
     useQuery({
@@ -101,6 +99,14 @@ export const QaManagerSystemReport = () => {
       value: dept.ideaCount,
     })) || [];
 
+  const { data: upDownVoteCounts, isLoading: isUpDownVoteCountsLoading } =
+    useQuery({
+      queryKey: ["upDownVoteCounts", academicYear],
+      queryFn: () =>
+        systemReportApi.fetchQaManagerUpDownVoteCounts(academicYear || ""),
+      enabled: !!academicYear,
+    });
+
   const {
     data: contributorsByDepartments,
     isLoading: isContributorsByDepartmentsLoading,
@@ -125,6 +131,7 @@ export const QaManagerSystemReport = () => {
     });
 
   console.log({ mostViewedIdeas });
+  console.log({ upDownVoteCounts });
 
   const handleViewIdea = (id: number) => {
     router.push(`/ideas/detail/${id}`);
@@ -187,7 +194,7 @@ export const QaManagerSystemReport = () => {
               <div>
                 <p className="font-bold text-sm mb-2">Upvotes</p>
                 <h2 className="text-3xl font-bold">
-                  {cardsData.departmentCount}
+                  {upDownVoteCounts?.upvoteCount}
                 </h2>
               </div>
               <div className="bg-primary text-white p-2 rounded-full">
@@ -199,7 +206,7 @@ export const QaManagerSystemReport = () => {
               <div>
                 <p className="font-bold text-sm mb-2">Downvotes</p>
                 <h2 className="text-3xl font-bold">
-                  {cardsData.departmentCount}
+                  {upDownVoteCounts?.downvoteCount}
                 </h2>
               </div>
               <div className="bg-primary text-white p-2 rounded-full">
@@ -294,11 +301,12 @@ export const QaManagerSystemReport = () => {
                             <text
                               x={x}
                               y={y + 10}
-                              textAnchor="middle"
+                              textAnchor="end"
+                              transform={`rotate(-45, ${x}, ${y + 10})`}
                               fontSize={12}
                               fill="#666"
                             >
-                              {words.map((word, index) => (
+                              {words.map((word: string, index: number) => (
                                 <tspan
                                   key={index}
                                   x={x}
@@ -310,6 +318,7 @@ export const QaManagerSystemReport = () => {
                             </text>
                           );
                         }}
+                        height={100}
                         interval={0}
                       />
                       <YAxis tick={{ fontSize: 10 }} />
@@ -340,11 +349,12 @@ export const QaManagerSystemReport = () => {
                             <text
                               x={x}
                               y={y + 10}
-                              textAnchor="middle"
+                              textAnchor="end"
+                              transform={`rotate(-45, ${x}, ${y + 10})`}
                               fontSize={12}
                               fill="#666"
                             >
-                              {words.map((word, index) => (
+                              {words.map((word: string, index: number) => (
                                 <tspan
                                   key={index}
                                   x={x}
@@ -356,6 +366,7 @@ export const QaManagerSystemReport = () => {
                             </text>
                           );
                         }}
+                        height={100}
                         interval={0}
                       />
                       <YAxis tick={{ fontSize: 10 }} />
@@ -395,14 +406,12 @@ export const QaManagerSystemReport = () => {
                 {mostViewedIdeas?.map((idea) => (
                   <TableRow key={idea.id}>
                     <TableCell className="font-medium">{idea.title}</TableCell>
-                    <TableCell>{idea.categoryId}</TableCell>
+                    <TableCell>{idea.categoryName}</TableCell>
                     <TableCell>{idea.viewCount}</TableCell>
-                    <TableCell>{idea.commentsCount || 0}</TableCell>
-                    <TableCell>{idea.totalLikes || 0}</TableCell>
-                    <TableCell>{idea.totalUnlikes || 0}</TableCell>
-                    <TableCell>
-                      {idea.isAnonymous ? "Anonymous" : idea.userName}
-                    </TableCell>
+                    <TableCell>{idea.commentCount || 0}</TableCell>
+                    <TableCell>{idea.upvoteCount || 0}</TableCell>
+                    <TableCell>{idea.downvoteCount || 0}</TableCell>
+                    <TableCell>{idea.authorName}</TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="ghost"
@@ -443,7 +452,7 @@ export const QaManagerSystemReport = () => {
                         {idea.title}
                       </h3>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        By {idea.isAnonymous ? "Anonymous" : idea.userName}
+                        By {idea.authorName}
                       </p>
                     </div>
                   </div>
@@ -452,7 +461,7 @@ export const QaManagerSystemReport = () => {
                 <CardContent className="grid grid-cols-2 gap-3 p-2.5 lg:p-4 text-sm">
                   <div>
                     <p className="text-muted-foreground">Category</p>
-                    <p className="font-medium">{idea.categoryId}</p>
+                    <p className="font-medium">{idea.categoryName}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Views</p>
@@ -465,7 +474,7 @@ export const QaManagerSystemReport = () => {
                     <p className="text-muted-foreground">Comments</p>
                     <div className="flex items-center gap-1.5">
                       <MessageCircle className="h-4 w-4 text-muted-foreground" />
-                      <p className="font-medium">{idea.commentsCount || 0}</p>
+                      <p className="font-medium">{idea.commentCount || 0}</p>
                     </div>
                   </div>
                   <div>
@@ -474,13 +483,13 @@ export const QaManagerSystemReport = () => {
                       <div className="flex items-center gap-1">
                         <ThumbsUp className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">
-                          {idea.totalLikes || 0}
+                          {idea.upvoteCount || 0}
                         </span>
                       </div>
                       <div className="flex items-center gap-1">
                         <ThumbsDown className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">
-                          {idea.totalUnlikes || 0}
+                          {idea.downvoteCount || 0}
                         </span>
                       </div>
                     </div>
