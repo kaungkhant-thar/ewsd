@@ -51,6 +51,7 @@ export default function DepartmentPage() {
   } = useQuery({
     queryKey: ["departments"],
     queryFn: departmentApi.fetchDepartments,
+    placeholderData: (prev)=>prev,
   });
 
   const filteredRecords =

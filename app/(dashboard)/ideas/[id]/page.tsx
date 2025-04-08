@@ -3,34 +3,84 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useStaff } from "@/hooks/use-staff";
 import { BE_HOST } from "@/lib/api";
+import { formatDate } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Ban, Eye, EyeOff, ThumbsDown, ThumbsUp, ArrowLeft, DownloadIcon, SquareArrowOutUpRight, Tag, Star } from "lucide-react";
-import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import {
+  ArrowLeft,
+  Ban,
+  DownloadIcon,
+  Eye,
+  EyeOff,
+  Flag,
+  Loader2,
+  SquareArrowOutUpRight,
+  Star,
+  Tag,
+  ThumbsDown,
+  ThumbsUp,
+  Unlock,
+} from "lucide-react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ideaApi } from "../api";
+import { reportedIdeaApi } from "../../reported-ideas/api";
+import { academicYearApi, ideaApi } from "../api";
+
+// Add this interface to extend IdeaDetail with additional properties
+interface ExtendedIdeaDetail {
+  isHidden?: boolean;
+  isUserBlocked?: boolean;
+}
 
 export default function IdeaDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const { user } = useStaff();
   const [comment, setComment] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
+  const [showReportDialog, setShowReportDialog] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<
+    "hide" | "block" | "unhide" | "activate" | null
+  >(null);
 
   const isManager = user?.roleName === "manager";
+  const isManagerView = searchParams.get("isManagerView") === "true";
+  const isUserBlocked = user?.isDisable;
 
   const { data: idea, isLoading } = useQuery({
     queryKey: ["idea", params.id],
     queryFn: () => ideaApi.fetchIdeaDetails(Number(params.id)),
   });
+
+  const { data: currentAY } = useQuery({
+    queryKey: ["currentAcademicYear"],
+    queryFn: academicYearApi.getCurrentAcademicYear,
+  });
+
+  const isFinalClosureDatePassed = currentAY
+    ? new Date(currentAY.finalClosureDate) < new Date()
+    : true;
 
   const submitCommentMutation = useMutation({
     mutationFn: () =>
@@ -45,50 +95,164 @@ export default function IdeaDetailPage() {
     },
   });
 
+  const reportMutation = useMutation({
+    mutationFn: () => reportedIdeaApi.reportIdea(user!.id, Number(params.id)),
+    onSuccess: () => {
+      toast.success("Idea reported successfully");
+      setShowReportDialog(false);
+      queryClient.invalidateQueries({ queryKey: ["idea", params.id] });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to report idea");
+      setShowReportDialog(false);
+    },
+  });
+
   const hidePostMutation = useMutation({
-    mutationFn: () => ideaApi.deleteIdea(Number(params.id)),
+    mutationFn: reportedIdeaApi.hidePost,
     onSuccess: () => {
       toast.success("Post hidden successfully");
-      router.push("/ideas");
+      queryClient.invalidateQueries({ queryKey: ["idea", params.id] });
+      setConfirmAction(null);
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to hide post");
+      setConfirmAction(null);
+    },
+  });
+
+  const unhidePostMutation = useMutation({
+    mutationFn: reportedIdeaApi.unhidePost,
+    onSuccess: () => {
+      toast.success("Post unhidden successfully");
+      queryClient.invalidateQueries({ queryKey: ["idea", params.id] });
+      setConfirmAction(null);
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to unhide post");
+      setConfirmAction(null);
     },
   });
 
   const blockUserMutation = useMutation({
-    mutationFn: () => ideaApi.blockUser(idea?.userId || 0),
+    mutationFn: reportedIdeaApi.blockUser,
     onSuccess: () => {
       toast.success("User blocked successfully");
-      router.push("/ideas");
+      queryClient.invalidateQueries({ queryKey: ["idea", params.id] });
+      setConfirmAction(null);
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to block user");
+      setConfirmAction(null);
     },
   });
 
-  if (isLoading || !idea) {
-    return <div>Loading...</div>;
-  }
-
-  const formattedDate = new Date(idea.createdAt).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
+  const activateUserMutation = useMutation({
+    mutationFn: reportedIdeaApi.activateUser,
+    onSuccess: () => {
+      toast.success("User activated successfully");
+      queryClient.invalidateQueries({ queryKey: ["idea", params.id] });
+      setConfirmAction(null);
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to activate user");
+      setConfirmAction(null);
+    },
   });
+
+  const handleReport = () => {
+    setShowReportDialog(true);
+  };
+
+  const confirmHidePost = () => {
+    hidePostMutation.mutate(Number(params.id));
+  };
+
+  const confirmUnhidePost = () => {
+    unhidePostMutation.mutate(Number(params.id));
+  };
+
+  const confirmBlockUser = () => {
+    blockUserMutation.mutate(idea!.userId);
+  };
+
+  const confirmActivateUser = () => {
+    activateUserMutation.mutate(idea!.userId);
+  };
+
+  if (isLoading || !idea) {
+    return (
+      <div className="flex items-center justify-center h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="container max-w-5xl">
-      <Link
-        href="/ideas"
-        className="text-sm text-muted-foreground hover:text-primary mb-4 lg:mb-8 flex items-center gap-2"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to ideas
-      </Link>
+      <div className="flex justify-between items-center mb-4 lg:mb-8">
+        <Button size="sm" variant="outline" onClick={() => router.back()}>
+          <ArrowLeft className="h-4 w-4" />
+          Go Back
+        </Button>
+        {isManagerView ? (
+          <div className="flex gap-2">
+            {(idea as any).isHidden ? (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setConfirmAction("unhide")}
+              >
+                <Eye className="h-4 w-4 mr-1" />
+                Unhide Post
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                variant="destructiveOutline"
+                onClick={() => setConfirmAction("hide")}
+              >
+                <EyeOff className="h-4 w-4 mr-1" />
+                Hide Post
+              </Button>
+            )}
+            {idea.userIsDisable ? (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setConfirmAction("activate")}
+                className="!text-brand border-brand hover:bg-brand/10"
+              >
+                <Unlock className="h-4 w-4 mr-1" />
+                Activate User
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => setConfirmAction("block")}
+              >
+                <Ban className="h-4 w-4 mr-1" />
+                Block User
+              </Button>
+            )}
+          </div>
+        ) : (
+          user?.id !== idea.userId && (
+            <Button
+              size="sm"
+              variant="destructiveOutline"
+              onClick={handleReport}
+            >
+              <Flag className="h-4 w-4 mr-1" />
+              Report
+            </Button>
+          )
+        )}
+      </div>
 
       <Card className="bg-[#F9FBFD] border border-[#D1D9E2]">
-        <CardHeader className="flex flex-col lg:flex-row lg:items-center justify-between space-y-0 p-2.5 lg:px-5 lg:py-4">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-2.5 lg:px-5 lg:py-4">
           <div className="flex items-center space-x-3">
             <Avatar>
               <AvatarImage />
@@ -105,29 +269,14 @@ export default function IdeaDetailPage() {
               <p className="text-sm">
                 Posted by{" "}
                 <span className="font-semibold">
-                  {user?.id === idea.userId ? "You" : !isManager && idea.isAnonymous ? "Anonymous" : idea.userName}
+                  {user?.id === idea.userId
+                    ? "You"
+                    : !isManager && idea.isAnonymous
+                    ? "Anonymous"
+                    : idea.userName}
                 </span>
               </p>
             </div>
-          </div>
-          <div className="flex gap-2 max-lg:hidden">
-            <Button 
-              variant="destructive" 
-              onClick={() => hidePostMutation.mutate()}
-              disabled={hidePostMutation.isPending}
-            >
-              <EyeOff className="h-4 w-4" />
-              Hide post
-            </Button>
-            <Button 
-              variant="outline" 
-              className="border-red-600 text-red-600 hover:bg-red-50"
-              onClick={() => blockUserMutation.mutate()}
-              disabled={blockUserMutation.isPending}
-            >
-              <Ban className="h-4 w-4" />
-              Block user
-            </Button>
           </div>
         </CardHeader>
         <Separator />
@@ -144,12 +293,18 @@ export default function IdeaDetailPage() {
             </Badge>
             <div className="flex items-center gap-2">
               <Eye className="size-6" />
-              <span className="text-sm lg:text-base text-[#3F3F46]">{idea.viewCount}</span>
+              <span className="text-sm lg:text-base text-[#3F3F46]">
+                {idea.viewCount}
+              </span>
             </div>
           </div>
           <div>
-            <h1 className="text-lg lg:text-2xl font-semibold mb-2">{idea.title}</h1>
-            <p className="text-base lg:text-lg text-[#09090B]">{idea.content}</p>
+            <h1 className="text-lg lg:text-2xl font-semibold mb-2">
+              {idea.title}
+            </h1>
+            <p className="text-base lg:text-lg text-[#09090B]">
+              {idea.content}
+            </p>
           </div>
 
           {idea.ideaDocuments.length > 0 && (
@@ -202,45 +357,28 @@ export default function IdeaDetailPage() {
         <CardFooter className="flex flex-wrap items-center pt-2 space-x-4 sm:space-x-8 text-[#3F3F46] px-4 sm:px-5 pb-4 sm:pb-5">
           <div className="flex items-center space-x-1.5 sm:space-x-2">
             <Star className="h-4 w-4 sm:h-5 sm:w-5 fill-yellow-400 stroke-none" />
-            <span className="text-xs sm:text-sm text-muted-foreground">{formattedDate}</span>
+            <span className="text-xs sm:text-sm text-muted-foreground">
+              {formatDate(idea.createdAt)}
+            </span>
           </div>
 
-          <button className="flex items-center space-x-1.5 sm:space-x-2">
+          <button className={`flex items-center space-x-1.5 sm:space-x-2`}>
             <ThumbsUp className="h-4 w-4 sm:h-5 sm:w-5" />
             <span className="text-sm sm:text-base/none">{idea.totalLikes}</span>
           </button>
 
-          <button className="flex items-center space-x-1.5 sm:space-x-2">
+          <button className={`flex items-center space-x-1.5 sm:space-x-2`}>
             <ThumbsDown className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span className="text-sm sm:text-base/none">{idea.totalUnlikes}</span>
+            <span className="text-sm sm:text-base/none">
+              {idea.totalUnlikes}
+            </span>
           </button>
         </CardFooter>
-          <div className="flex gap-2 lg:hidden p-2.5">
-            <Button 
-              variant="destructive" 
-              onClick={() => hidePostMutation.mutate()}
-              disabled={hidePostMutation.isPending}
-              className="w-full"
-            >
-              <EyeOff className="h-4 w-4" />
-              Hide post
-            </Button>
-            <Button 
-              variant="outline" 
-              className="border-red-600 text-red-600 hover:bg-red-50 w-full"
-              onClick={() => blockUserMutation.mutate()}
-              disabled={blockUserMutation.isPending}
-   
-            >
-              <Ban className="h-4 w-4" />
-              Block user
-            </Button>
-          </div>
       </Card>
 
       <div className="mt-8">
         <h2 className="text-lg lg:text-xl font-semibold mb-4">
-          Responses ({idea.comments.length})
+          Comments ({idea.comments.length})
         </h2>
 
         <Card className="bg-background mb-8">
@@ -267,24 +405,43 @@ export default function IdeaDetailPage() {
               </div>
               <Button
                 onClick={() => submitCommentMutation.mutate()}
-                disabled={!comment.trim() || submitCommentMutation.isPending}
+                disabled={
+                  !comment.trim() ||
+                  submitCommentMutation.isPending ||
+                  isUserBlocked ||
+                  !isFinalClosureDatePassed
+                }
                 className="bg-[#0F766E] hover:bg-[#0B5854]"
               >
-                {submitCommentMutation.isPending ? "Responding..." : "Respond"}
+                {submitCommentMutation.isPending ? "Commenting..." : "Comment"}
               </Button>
             </div>
+            {isFinalClosureDatePassed ? (
+              <p className="text-red-500 text-sm mt-4">
+                The idea posting for this academic year is closed. Please
+                contact admin for assistance.
+              </p>
+            ) : isUserBlocked ? (
+              <p className="text-red-500 text-sm mt-4">
+                Your account is blocked. Please contact admin for assistance.
+              </p>
+            ) : (
+              ""
+            )}
           </CardContent>
         </Card>
 
         <div className="space-y-4">
-          {idea.comments.map((comment) => (
+          {idea.comments.filter((comment) => !comment.userIsDisable).map((comment) => (
             <Card key={comment.id} className="bg-background">
               <CardHeader className="flex flex-row items-start space-y-0 max-lg:p-2.5 lg:pb-2">
                 <div className="flex items-center space-x-3">
                   <Avatar className="size-8">
                     <AvatarImage />
                     <AvatarFallback>
-                      {comment.userId===user?.id ? "Y" : !isManager && comment.isAnonymous
+                      {comment.userId === user?.id
+                        ? "Y"
+                        : !isManager && comment.isAnonymous
                         ? "AN"
                         : comment.userName
                             .split(" ", 2)
@@ -294,7 +451,11 @@ export default function IdeaDetailPage() {
                   </Avatar>
                   <div>
                     <p className="text-sm font-medium">
-                      {comment.userId===user?.id ? "You" : !isManager && comment.isAnonymous ? "Anonymous" : comment.userName}
+                      {comment.userId === user?.id
+                        ? "You"
+                        : !isManager && comment.isAnonymous
+                        ? "Anonymous"
+                        : comment.userName}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {new Date(comment.createdAt).toLocaleDateString("en-US", {
@@ -313,6 +474,149 @@ export default function IdeaDetailPage() {
           ))}
         </div>
       </div>
+
+      {/* Report Dialog */}
+      <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="mb-4">Report Idea</DialogTitle>
+            <DialogDescription>
+              We will conduct a thorough review of the Community Guidelines to
+              assess whether the reported content or activity violates our
+              policies and warrants action.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowReportDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => reportMutation.mutate()}
+              disabled={reportMutation.isPending}
+            >
+              {reportMutation.isPending ? "Reporting..." : "Report Idea"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmation Dialog for Hide Post */}
+      <Dialog
+        open={confirmAction === "hide"}
+        onOpenChange={() => setConfirmAction(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hide Post Confirmation</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to hide this post? This action will remove
+              the post from public view.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmAction(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmHidePost}
+              disabled={hidePostMutation.isPending}
+            >
+              {hidePostMutation.isPending ? "Processing..." : "Hide Post"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmation Dialog for Unhide Post */}
+      <Dialog
+        open={confirmAction === "unhide"}
+        onOpenChange={() => setConfirmAction(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Unhide Post Confirmation</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to unhide this post? This action will make
+              the post visible to the public again.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmAction(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="default"
+              onClick={confirmUnhidePost}
+              disabled={unhidePostMutation.isPending}
+            >
+              {unhidePostMutation.isPending ? "Processing..." : "Unhide Post"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmation Dialog for Block User */}
+      <Dialog
+        open={confirmAction === "block"}
+        onOpenChange={() => setConfirmAction(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Block User Confirmation</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to block this user? This action will prevent
+              the user from accessing the platform.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmAction(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmBlockUser}
+              disabled={blockUserMutation.isPending}
+            >
+              {blockUserMutation.isPending ? "Processing..." : "Block User"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmation Dialog for Activate User */}
+      <Dialog
+        open={confirmAction === "activate"}
+        onOpenChange={() => setConfirmAction(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Activate User Confirmation</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to activate this user? This action will
+              restore the user's access to the platform.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmAction(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="default"
+              onClick={confirmActivateUser}
+              disabled={activateUserMutation.isPending}
+            >
+              {activateUserMutation.isPending
+                ? "Processing..."
+                : "Activate User"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

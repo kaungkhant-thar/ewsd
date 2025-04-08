@@ -1,5 +1,13 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -9,22 +17,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Plus, Search, TriangleAlert, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  Plus,
+  Search,
+  TriangleAlert,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ideaApi, categoryApi, academicYearApi } from "./api";
 import IdeaCard from "../IdeaCard";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { staffApi } from "../staff/api";
-import { api } from "@/lib/api";
+import { academicYearApi, categoryApi, ideaApi } from "./api";
 
 export default function IdeaPage() {
   const router = useRouter();
@@ -66,14 +72,13 @@ export default function IdeaPage() {
   } = useQuery({
     queryKey: ["ideas", sortBy, category, keyword, currentPage],
     queryFn: () => ideaApi.fetchIdeas(sortBy, category, keyword, currentPage),
+    placeholderData: (prev) => prev,
   });
 
   const { data: user } = useQuery({
     queryKey: ["user"],
     queryFn: staffApi.fetchLoggedInUser,
   });
-
-  
 
   const isReportable = user?.roleName === "staff";
 
@@ -105,14 +110,19 @@ export default function IdeaPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
     });
   };
 
   const isManagerView = user?.roleName === "manager";
+  const isClosureDatePassed = currentAY
+    ? new Date(currentAY.closureDate) < new Date()
+    : true;
+
+  console.log(isClosureDatePassed, currentAY);
 
   return (
     <>
@@ -120,8 +130,11 @@ export default function IdeaPage() {
         <div className="sticky top-0 z-50 w-full bg-[#E6FCEF] rounded-[6px]">
           <div className="container flex items-center gap-x-4 h-24 px-4 sm:px-6">
             <p className="text-[#007633] text-sm font-medium">
-              <span className="font-semibold">Notice:</span> <br/>
-               The idea posting for this academic year <span className="font-semibold">{currentAY.name}</span> is {formatDate(currentAY.startDate)} - {formatDate(currentAY.endDate)}
+              <span className="font-semibold">Notice:</span> <br />
+              The idea posting for this academic year{" "}
+              <span className="font-semibold">{currentAY.name}</span> is{" "}
+              {formatDate(currentAY.startDate)} -{" "}
+              {formatDate(currentAY.endDate)}
             </p>
           </div>
         </div>
@@ -129,7 +142,18 @@ export default function IdeaPage() {
       <div className="container mx-auto py-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <h1 className="text-xl lg:text-2xl font-medium">Ideas</h1>
-          <Button onClick={() => router.push("/ideas/new")} className="w-full sm:w-auto">
+          <Button
+            onClick={() => {
+              if (isClosureDatePassed) {
+                toast.error(
+                  "The idea posting for this academic year is closed"
+                );
+              } else {
+                router.push("/ideas/new");
+              }
+            }}
+            className="w-full sm:w-auto"
+          >
             <Plus className="mr-2 h-4 w-4" />
             <span>Submit New Idea</span>
           </Button>
@@ -149,10 +173,13 @@ export default function IdeaPage() {
             />
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-6 w-full sm:w-auto">
-            <Select value={sortBy} onValueChange={(value) => {
-              setSortBy(value);
-              setCurrentPage(1);
-            }}>
+            <Select
+              value={sortBy}
+              onValueChange={(value) => {
+                setSortBy(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-full sm:w-40">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
@@ -164,10 +191,13 @@ export default function IdeaPage() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={`${category}`} onValueChange={(value) => {
-              setCategory(value);
-              setCurrentPage(1);
-            }}>
+            <Select
+              value={`${category}`}
+              onValueChange={(value) => {
+                setCategory(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-full sm:w-60">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
@@ -195,11 +225,12 @@ export default function IdeaPage() {
                 />
               ))}
             </div>
-            
+
             {/* Pagination Controls */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8">
               <div className="text-sm text-muted-foreground text-center sm:text-left">
-                Showing {pagination.from} to {pagination.to} of {pagination.total} results
+                Showing {pagination.from} to {pagination.to} of{" "}
+                {pagination.total} results
               </div>
               <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto">
                 <Button
@@ -212,7 +243,10 @@ export default function IdeaPage() {
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
                 <div className="flex items-center gap-0.5 sm:gap-1">
-                  {Array.from({ length: pagination.lastPage }, (_, i) => i + 1).map((page) => (
+                  {Array.from(
+                    { length: pagination.lastPage },
+                    (_, i) => i + 1
+                  ).map((page) => (
                     <Button
                       key={page}
                       variant={currentPage === page ? "default" : "outline"}

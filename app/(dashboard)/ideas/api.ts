@@ -84,6 +84,7 @@ export interface Comment {
   isAnonymous: boolean;
   createdAt: string;
   updatedAt: string;
+  userIsDisable: boolean;
 }
 
 export interface IdeaDetail {
@@ -95,6 +96,7 @@ export interface IdeaDetail {
   popularity: number;
   userId: number;
   userName: string;
+  userIsDisable: boolean;
   categoryId: number;
   categoryName: string;
   academicYearId: number;

@@ -1,18 +1,3 @@
-import Image from "next/image";
-import Link from "next/link";
-import {
-  Eye,
-  MessageCircle,
-  Star,
-  Tag,
-  ThumbsDown,
-  ThumbsUp,
-  MoreHorizontal,
-  SquareArrowOutUpRight,
-  DownloadIcon,
-  Flag,
-  Trash2,
-} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,16 +7,6 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ideaApi, reactionApi } from "./submitted-ideas/api";
-import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -40,9 +15,35 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useState, useEffect, useRef } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Separator } from "@/components/ui/separator";
+import { useStaff } from "@/hooks/use-staff";
 import { BE_HOST } from "@/lib/api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Ban,
+  DownloadIcon,
+  Eye,
+  EyeOff,
+  Flag,
+  MessageCircle,
+  MoreHorizontal,
+  SquareArrowOutUpRight,
+  Star,
+  Tag,
+  ThumbsDown,
+  ThumbsUp,
+  Trash2,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { ideaApi, reactionApi } from "./submitted-ideas/api";
 
 interface IdeaDocument {
   id: number;
@@ -123,7 +124,6 @@ export default function IdeaCard({
   const currentUserReaction = reactions.find(
     (r) => r.user_id === currentUserId
   );
-
 
   const deleteMutation = useMutation({
     mutationFn: ideaApi.deleteIdea,
@@ -247,7 +247,7 @@ export default function IdeaCard({
     ) {
       // e.preventDefault();
     } else {
-      router.push(`/ideas/detail/${id}`);
+      router.push(`/ideas/${id}`);
     }
   };
 
@@ -288,7 +288,11 @@ export default function IdeaCard({
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 sm:h-9 sm:w-9"
+                >
                   <MoreHorizontal className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
               </DropdownMenuTrigger>
@@ -335,11 +339,15 @@ export default function IdeaCard({
               </Badge>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <Eye className="size-5 sm:size-6" />
-                <span className="text-sm sm:text-base text-[#3F3F46]">{viewCount}</span>
+                <span className="text-sm sm:text-base text-[#3F3F46]">
+                  {viewCount}
+                </span>
               </div>
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-semibold mb-1.5 sm:mb-2">{title}</h1>
+              <h1 className="text-xl sm:text-2xl font-semibold mb-1.5 sm:mb-2">
+                {title}
+              </h1>
               <p className="text-sm sm:text-base text-[#09090B]">{content}</p>
             </div>
 
@@ -393,7 +401,9 @@ export default function IdeaCard({
           <CardFooter className="flex flex-wrap items-center pt-2 space-x-4 sm:space-x-8 text-[#3F3F46] px-4 sm:px-5 pb-4 sm:pb-5">
             <div className="flex items-center space-x-1.5 sm:space-x-2">
               <Star className="h-4 w-4 sm:h-5 sm:w-5 fill-yellow-400 stroke-none" />
-              <span className="text-xs sm:text-sm text-muted-foreground">{formattedDate}</span>
+              <span className="text-xs sm:text-sm text-muted-foreground">
+                {formattedDate}
+              </span>
             </div>
 
             <button

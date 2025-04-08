@@ -134,7 +134,7 @@ export const QaManagerSystemReport = () => {
   console.log({ upDownVoteCounts });
 
   const handleViewIdea = (id: number) => {
-    router.push(`/ideas/detail/${id}`);
+    router.push(`/ideas/${id}`);
   };
 
   if (

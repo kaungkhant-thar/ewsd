@@ -11,6 +11,7 @@ export type Staff = {
   remark: string | null;
   createdAt: string;
   updatedAt: string;
+  isDisable: boolean;
 };
 
 export type StaffRoleName = "admin" | "staff" | "manager" | "coordinator";

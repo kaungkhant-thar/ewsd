@@ -66,7 +66,7 @@ export const QaCoordinatorSystemReport = () => {
   });
 
   const handleViewIdea = (id: number) => {
-    router.push(`/ideas/detail/${id}`);
+    router.push(`/ideas/${id}`);
   };
 
   if (isAcademicYearsLoading || !coordinatorData) {
