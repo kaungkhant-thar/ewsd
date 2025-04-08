@@ -406,10 +406,9 @@ export default function IdeaDetailPage() {
               <Button
                 onClick={() => submitCommentMutation.mutate()}
                 disabled={
-                  !comment.trim() ||
                   submitCommentMutation.isPending ||
                   isUserBlocked ||
-                  !isFinalClosureDatePassed
+                  isFinalClosureDatePassed
                 }
                 className="bg-[#0F766E] hover:bg-[#0B5854]"
               >
