@@ -417,7 +417,7 @@ export default function IdeaDetailPage() {
             </div>
             {isFinalClosureDatePassed ? (
               <p className="text-red-500 text-sm mt-4">
-                The idea posting for this academic year is closed. Please
+                The commenting for this academic year is closed. Please
                 contact admin for assistance.
               </p>
             ) : isUserBlocked ? (

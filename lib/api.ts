@@ -40,8 +40,7 @@ api.interceptors.request.use((config) => {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
+      refetchOnMount:true
     },
   },
 });

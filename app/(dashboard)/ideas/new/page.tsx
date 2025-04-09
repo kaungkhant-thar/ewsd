@@ -7,7 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { IdeaFormData, ideaApi } from "../api";
+import { IdeaFormData, academicYearApi, ideaApi } from "../api";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
@@ -33,6 +33,11 @@ export default function IdeaFormPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const isNew = true;
+
+  const { data: currentAY } = useQuery({
+    queryKey: ["currentAcademicYear"],
+    queryFn: academicYearApi.getCurrentAcademicYear,
+  });
 
   const { data: idea, isLoading } = useQuery({
     queryKey: ["idea", params.id],
@@ -79,9 +84,9 @@ export default function IdeaFormPage() {
 
   useEffect(() => {
     if (currentUser) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        userId: currentUser.id
+        userId: currentUser.id,
       }));
     }
   }, [currentUser]);
@@ -104,7 +109,7 @@ export default function IdeaFormPage() {
       toast.error("User not authenticated");
       return;
     }
-    
+
     const submissionData = {
       ...formData,
       files: selectedFiles,
@@ -131,6 +136,17 @@ export default function IdeaFormPage() {
       setFilePreviews(newPreviews);
     }
   };
+
+  const isClosureDatePassed = currentAY
+    ? new Date(currentAY.closureDate) < new Date()
+    : true;
+
+  useEffect(() => {
+    if (isClosureDatePassed) {
+      toast.error("The idea posting for this academic year is closed");
+      router.back();
+    }
+  }, [isClosureDatePassed]);
 
   useEffect(() => {
     return () => {

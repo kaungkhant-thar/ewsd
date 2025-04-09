@@ -122,8 +122,6 @@ export default function IdeaPage() {
     ? new Date(currentAY.closureDate) < new Date()
     : true;
 
-  console.log(isClosureDatePassed, currentAY);
-
   return (
     <>
       {currentAY && (
@@ -144,15 +142,24 @@ export default function IdeaPage() {
           <h1 className="text-xl lg:text-2xl font-medium">Ideas</h1>
           <Button
             onClick={() => {
-              if (isClosureDatePassed) {
-                toast.error(
-                  "The idea posting for this academic year is closed"
-                );
-              } else {
-                router.push("/ideas/new");
-              }
+              academicYearApi
+                .getCurrentAcademicYear()
+                .then(({ closureDate }) => {
+                  const isClosureDatePassed = currentAY
+                    ? new Date(closureDate) < new Date()
+                    : true;
+                  if (isClosureDatePassed) {
+                    toast.error(
+                      "The idea posting for this academic year is closed"
+                    );
+                  } else {
+                    router.push("/ideas/new");
+                  }
+                });
             }}
-            className="w-full sm:w-auto"
+            className={`w-full sm:w-auto ${
+              isClosureDatePassed ? "!opacity-75 cursor-not-allowed" : ""
+            }`}
           >
             <Plus className="mr-2 h-4 w-4" />
             <span>Submit New Idea</span>
