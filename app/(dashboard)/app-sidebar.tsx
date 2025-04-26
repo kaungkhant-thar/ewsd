@@ -99,6 +99,7 @@ export function AppSidebar() {
               name: user.userName,
               email: user.email,
               avatar: "",
+              roleName: user.roleName,
             }}
           />
         )}

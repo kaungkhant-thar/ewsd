@@ -140,7 +140,7 @@ export default function IdeaPage() {
       <div className="container mx-auto py-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <h1 className="text-xl lg:text-2xl font-medium">Ideas</h1>
-          <Button
+          {user?.roleName ==="staff" && <Button
             onClick={() => {
               academicYearApi
                 .getCurrentAcademicYear()
@@ -163,7 +163,7 @@ export default function IdeaPage() {
           >
             <Plus className="mr-2 h-4 w-4" />
             <span>Submit New Idea</span>
-          </Button>
+          </Button>}
         </div>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">

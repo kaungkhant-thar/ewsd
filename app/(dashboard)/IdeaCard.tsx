@@ -277,11 +277,7 @@ export default function IdeaCard({
                 <p className="text-xs sm:text-sm">
                   Posted by{" "}
                   <span className="font-semibold">
-                    {currentUserId === userId
-                      ? "You"
-                      : !isManagerView && isAnonymous
-                      ? "Anonymous"
-                      : userName}
+                    {!isManagerView && isAnonymous ? "Anonymous" : userName}
                   </span>
                 </p>
               </div>

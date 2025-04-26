@@ -269,11 +269,7 @@ export default function IdeaDetailPage() {
               <p className="text-sm">
                 Posted by{" "}
                 <span className="font-semibold">
-                  {user?.id === idea.userId
-                    ? "You"
-                    : !isManager && idea.isAnonymous
-                    ? "Anonymous"
-                    : idea.userName}
+                  {!isManager && idea.isAnonymous ? "Anonymous" : idea.userName}
                 </span>
               </p>
             </div>
@@ -417,8 +413,8 @@ export default function IdeaDetailPage() {
             </div>
             {isFinalClosureDatePassed ? (
               <p className="text-red-500 text-sm mt-4">
-                The commenting for this academic year is closed. Please
-                contact admin for assistance.
+                The commenting for this academic year is closed. Please contact
+                admin for assistance.
               </p>
             ) : isUserBlocked ? (
               <p className="text-red-500 text-sm mt-4">
@@ -431,46 +427,49 @@ export default function IdeaDetailPage() {
         </Card>
 
         <div className="space-y-4">
-          {idea.comments.filter((comment) => !comment.userIsDisable).map((comment) => (
-            <Card key={comment.id} className="bg-background">
-              <CardHeader className="flex flex-row items-start space-y-0 max-lg:p-2.5 lg:pb-2">
-                <div className="flex items-center space-x-3">
-                  <Avatar className="size-8">
-                    <AvatarImage />
-                    <AvatarFallback>
-                      {comment.userId === user?.id
-                        ? "Y"
-                        : !isManager && comment.isAnonymous
-                        ? "AN"
-                        : comment.userName
-                            .split(" ", 2)
-                            .map((n) => n[0])
-                            .join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-sm font-medium">
-                      {comment.userId === user?.id
-                        ? "You"
-                        : !isManager && comment.isAnonymous
-                        ? "Anonymous"
-                        : comment.userName}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(comment.createdAt).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </p>
+          {idea.comments
+            .filter((comment) => !comment.userIsDisable)
+            .map((comment) => (
+              <Card key={comment.id} className="bg-background">
+                <CardHeader className="flex flex-row items-start space-y-0 max-lg:p-2.5 lg:pb-2">
+                  <div className="flex items-center space-x-3">
+                    <Avatar className="size-8">
+                      <AvatarImage />
+                      <AvatarFallback>
+                        {comment.userId === user?.id
+                          ? "Y"
+                          : !isManager && comment.isAnonymous
+                          ? "AN"
+                          : comment.userName
+                              .split(" ", 2)
+                              .map((n) => n[0])
+                              .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="text-sm font-medium">
+                        {!isManager && comment.isAnonymous
+                          ? "Anonymous"
+                          : comment.userName}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(comment.createdAt).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          }
+                        )}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent className="max-lg:p-2.5">
-                <p className="text-sm">{comment.desc}</p>
-              </CardContent>
-            </Card>
-          ))}
+                </CardHeader>
+                <CardContent className="max-lg:p-2.5">
+                  <p className="text-sm">{comment.desc}</p>
+                </CardContent>
+              </Card>
+            ))}
         </div>
       </div>
 
