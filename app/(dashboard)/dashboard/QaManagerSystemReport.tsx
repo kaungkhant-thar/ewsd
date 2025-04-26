@@ -302,7 +302,7 @@ export const QaManagerSystemReport = () => {
                               x={x}
                               y={y + 10}
                               textAnchor="end"
-                              transform={`rotate(-45, ${x}, ${y + 10})`}
+                              transform={`rotate(-90, ${x}, ${y + 10})`}
                               fontSize={12}
                               fill="#666"
                             >
@@ -350,7 +350,7 @@ export const QaManagerSystemReport = () => {
                               x={x}
                               y={y + 10}
                               textAnchor="end"
-                              transform={`rotate(-45, ${x}, ${y + 10})`}
+                              transform={`rotate(-90, ${x}, ${y + 10})`}
                               fontSize={12}
                               fill="#666"
                             >
