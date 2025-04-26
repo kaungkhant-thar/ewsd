@@ -124,7 +124,7 @@ export default function AcademicYearPage() {
 
   const currentUser = useCurrentUser();
 
-  const readOnly = !['admin', 'manager'].includes(currentUser?.roleName || '');
+  const readOnly = !['admin'].includes(currentUser?.roleName || '');
 
   return (
     <div className="container mx-auto">
