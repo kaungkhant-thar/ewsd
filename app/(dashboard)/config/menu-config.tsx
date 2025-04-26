@@ -124,11 +124,11 @@ export const menuConfig: RoleMenuConfig = {
           text: "Ideas",
           href: "/ideas",
         },
-        {
-          icon: <Bell className="size-4" />,
-          text: "Announcement",
-          href: "/announcement",
-        },
+        // {
+        //   icon: <Bell className="size-4" />,
+        //   text: "Announcement",
+        //   href: "/announcement",
+        // },
       ],
     },
   ],
