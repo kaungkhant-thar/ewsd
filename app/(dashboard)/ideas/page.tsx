@@ -1,5 +1,5 @@
-"use client";
-import { Button } from "@/components/ui/button";
+'use client';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -7,58 +7,45 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
-  Plus,
-  Search,
-  TriangleAlert,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
-import IdeaCard from "../IdeaCard";
-import { staffApi } from "../staff/api";
-import { academicYearApi, categoryApi, ideaApi } from "./api";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ChevronLeft, ChevronRight, Loader2, Plus, Search, TriangleAlert } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import IdeaCard from '../IdeaCard';
+import { staffApi } from '../staff/api';
+import { academicYearApi, categoryApi, ideaApi } from './api';
 
 export default function IdeaPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [sortBy, setSortBy] = useState("createdAt");
-  const [keyword, setKeyword] = useState("");
-  const [category, setCategory] = useState("all");
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [keyword, setKeyword] = useState('');
+  const [category, setCategory] = useState('all');
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Fetch current academic year
   const { data: currentAY } = useQuery({
-    queryKey: ["currentAcademicYear"],
+    queryKey: ['currentAcademicYear'],
     queryFn: academicYearApi.getCurrentAcademicYear,
   });
 
   const sortOptions = [
-    { value: "createdAt", label: "Date" },
-    { value: "popularity", label: "Popularity" },
+    { value: 'createdAt', label: 'Date' },
+    { value: 'popularity', label: 'Popularity' },
   ];
 
   const { data: categories = [] } = useQuery({
-    queryKey: ["categories"],
+    queryKey: ['categories'],
     queryFn: categoryApi.fetchCategories,
   });
 
   const categoryOptions = [
-    { value: "all", label: "All Categories" },
+    { value: 'all', label: 'All Categories' },
     ...categories.map((category) => ({
       value: category.id,
       label: category.categoryName,
@@ -70,28 +57,28 @@ export default function IdeaPage() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["ideas", sortBy, category, keyword, currentPage],
+    queryKey: ['ideas', sortBy, category, keyword, currentPage],
     queryFn: () => ideaApi.fetchIdeas(sortBy, category, keyword, currentPage),
     placeholderData: (prev) => prev,
   });
 
   const { data: user } = useQuery({
-    queryKey: ["user"],
+    queryKey: ['user'],
     queryFn: staffApi.fetchLoggedInUser,
   });
 
-  const isReportable = user?.roleName === "staff";
+  const isReportable = user?.roleName === 'staff';
 
   const deleteMutation = useMutation({
     mutationFn: ideaApi.deleteIdea,
     onSuccess: () => {
-      toast.success("Idea deleted successfully");
-      queryClient.invalidateQueries({ queryKey: ["ideas"] });
+      toast.success('Idea deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['ideas'] });
       setDeleteId(null);
     },
     onError: (error: Error) => {
       setDeleteId(null);
-      toast.error(error.message || "Failed to delete idea");
+      toast.error(error.message || 'Failed to delete idea');
     },
   });
 
@@ -103,24 +90,29 @@ export default function IdeaPage() {
     );
   }
 
-  const { ideaList, pagination } = ideasResponse!;
+  const ideaList = ideasResponse?.ideaList ?? [];
+  const pagination = ideasResponse?.pagination ?? {
+    currentPage: 1,
+    total: 0,
+    lastPage: 1,
+    from: 0,
+    to: 0,
+  };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
     });
   };
 
-  const isManagerView = user?.roleName === "manager";
-  const isClosureDatePassed = currentAY
-    ? new Date(currentAY.closureDate) < new Date()
-    : true;
+  const isManagerView = user?.roleName === 'manager';
+  const isClosureDatePassed = currentAY ? new Date(currentAY.closureDate) < new Date() : true;
 
   return (
     <>
@@ -129,10 +121,8 @@ export default function IdeaPage() {
           <div className="container flex items-center gap-x-4 h-24 px-4 sm:px-6">
             <p className="text-[#007633] text-sm font-medium">
               <span className="font-semibold">Notice:</span> <br />
-              The idea posting for this academic year{" "}
-              <span className="font-semibold">{currentAY.name}</span> is{" "}
-              {formatDate(currentAY.startDate)} -{" "}
-              {formatDate(currentAY.endDate)}
+              The idea posting for this academic year <span className="font-semibold">{currentAY.name}</span> is{' '}
+              {formatDate(currentAY.startDate)} - {formatDate(currentAY.endDate)}
             </p>
           </div>
         </div>
@@ -142,24 +132,16 @@ export default function IdeaPage() {
           <h1 className="text-xl lg:text-2xl font-medium">Ideas</h1>
           <Button
             onClick={() => {
-              academicYearApi
-                .getCurrentAcademicYear()
-                .then(({ closureDate }) => {
-                  const isClosureDatePassed = currentAY
-                    ? new Date(closureDate) < new Date()
-                    : true;
-                  if (isClosureDatePassed) {
-                    toast.error(
-                      "The idea posting for this academic year is closed"
-                    );
-                  } else {
-                    router.push("/ideas/new");
-                  }
-                });
+              academicYearApi.getCurrentAcademicYear().then(({ closureDate }) => {
+                const isClosureDatePassed = currentAY ? new Date(closureDate) < new Date() : true;
+                if (isClosureDatePassed) {
+                  toast.error('The idea posting for this academic year is closed');
+                } else {
+                  router.push('/ideas/new');
+                }
+              });
             }}
-            className={`w-full sm:w-auto ${
-              isClosureDatePassed ? "!opacity-75 cursor-not-allowed" : ""
-            }`}
+            className={`w-full sm:w-auto ${isClosureDatePassed ? '!opacity-75 cursor-not-allowed' : ''}`}
           >
             <Plus className="mr-2 h-4 w-4" />
             <span>Submit New Idea</span>
@@ -236,8 +218,7 @@ export default function IdeaPage() {
             {/* Pagination Controls */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8">
               <div className="text-sm text-muted-foreground text-center sm:text-left">
-                Showing {pagination.from} to {pagination.to} of{" "}
-                {pagination.total} results
+                Showing {pagination.from} to {pagination.to} of {pagination.total} results
               </div>
               <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto">
                 <Button
@@ -250,13 +231,10 @@ export default function IdeaPage() {
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
                 <div className="flex items-center gap-0.5 sm:gap-1">
-                  {Array.from(
-                    { length: pagination.lastPage },
-                    (_, i) => i + 1
-                  ).map((page) => (
+                  {Array.from({ length: pagination.lastPage }, (_, i) => i + 1).map((page) => (
                     <Button
                       key={page}
-                      variant={currentPage === page ? "default" : "outline"}
+                      variant={currentPage === page ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => handlePageChange(page)}
                       className="h-8 w-8 p-0 text-sm sm:h-9 sm:w-9"
@@ -284,8 +262,7 @@ export default function IdeaPage() {
             </div>
             <h2 className="text-xl font-medium mb-2">No ideas found</h2>
             <p className="text-muted-foreground">
-              Try adjusting your search or filters to find what you're looking
-              for.
+              Try adjusting your search or filters to find what you're looking for.
             </p>
           </div>
         )}
@@ -295,8 +272,8 @@ export default function IdeaPage() {
             <DialogHeader>
               <DialogTitle className="mb-4">Confirm Deletion</DialogTitle>
               <DialogDescription>
-                This action cannot be undone. This will permanently delete the
-                idea and all associated documents from our servers.
+                This action cannot be undone. This will permanently delete the idea and all associated documents from
+                our servers.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="mt-4">
@@ -308,7 +285,7 @@ export default function IdeaPage() {
                 onClick={() => deleteId && deleteMutation.mutate(deleteId)}
                 disabled={deleteMutation.isPending}
               >
-                {deleteMutation.isPending ? "Deleting..." : "Delete Idea"}
+                {deleteMutation.isPending ? 'Deleting...' : 'Delete Idea'}
               </Button>
             </DialogFooter>
           </DialogContent>
