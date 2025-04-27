@@ -436,9 +436,7 @@ export default function IdeaDetailPage() {
                     <Avatar className="size-8">
                       <AvatarImage />
                       <AvatarFallback>
-                        {comment.userId === user?.id
-                          ? "Y"
-                          : !isManager && comment.isAnonymous
+                        {!isManager && comment.isAnonymous
                           ? "AN"
                           : comment.userName
                               .split(" ", 2)

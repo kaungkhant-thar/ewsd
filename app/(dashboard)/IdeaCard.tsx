@@ -263,9 +263,7 @@ export default function IdeaCard({
               <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
                 <AvatarImage />
                 <AvatarFallback>
-                  {currentUserId === userId
-                    ? "Y"
-                    : !isManagerView && isAnonymous
+                  {!isManagerView && isAnonymous
                     ? "AN"
                     : userName
                         .split(" ", 2)
