@@ -139,7 +139,12 @@ export default function StaffPage() {
               </TableHeader>
               <TableBody>
                 {filteredRecords
-                  .sort((a, b) => String(a[sortBy as keyof Staff]).localeCompare(String(b[sortBy as keyof Staff])))
+                  .sort((a, b) => {
+                    if (sortBy === 'id') {
+                      return Number(a[sortBy]) - Number(b[sortBy]);
+                    }
+                    return String(a[sortBy as keyof Staff]).localeCompare(String(b[sortBy as keyof Staff]));
+                  })
                   .map((staff) => (
                     <TableRow key={staff.id}>
                       <TableCell>{staff.id}</TableCell>
@@ -172,7 +177,12 @@ export default function StaffPage() {
           {/* Card view for mobile screens */}
           <div className="lg:hidden space-y-4">
             {filteredRecords
-              .sort((a, b) => String(a[sortBy as keyof Staff]).localeCompare(String(b[sortBy as keyof Staff])))
+              .sort((a, b) => {
+                if (sortBy === 'id') {
+                  return Number(a[sortBy]) - Number(b[sortBy]);
+                }
+                return String(a[sortBy as keyof Staff]).localeCompare(String(b[sortBy as keyof Staff]));
+              })
               .map((staff) => {
                 const roleName = roles.find((role) => role.id === staff.roleId)?.roleName;
                 const departmentName = departments.find(
